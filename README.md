@@ -105,7 +105,7 @@ In your terminal, run:
 .\mvnw.cmd clean
 .\mvnw.cmd spring-boot:run
 ```
-> Make sure you run these from the **project root** (`C:\Users\yourname\myadvice`) and NOT from inside the `src` folder.
+> Make sure you run these from the **project root** (`C:\...\myadvice`) and NOT from inside the `src` folder (there's a myadvice folder inside src, don't run from there).
 
 It should say BUILD SUCCESS. To check that the database tables were created properly, check on HeidiSQL by querying ```SHOW TABLES;```.
 Currently, it should show `course`, `users`, `transcript`, `prerequisite`, `course_plan`, and `course_plan_item`.
