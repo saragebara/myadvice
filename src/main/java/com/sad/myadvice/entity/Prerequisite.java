@@ -27,7 +27,6 @@ public class Prerequisite {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    //
     public enum Type {
         PRE, //prerequisite
         CO, //corequisite
