@@ -16,6 +16,14 @@ public class Course {
     private int yearLevel; //1, 2, 3, or 4
     private boolean isRequired; //whether it's a required course or not
 
+    @Enumerated(EnumType.STRING)
+    private Category category;
+
+    //stores the category of the course. will edit this later to include all requirements for different CS majors
+    public enum Category { 
+        CORE, ART, SOCIAL_SCIENCE, MATH, FREE_ELECTIVE
+    }
+
     //----Getters and setters----
     //id
     public Long getId() { return id; }
@@ -34,4 +42,7 @@ public class Course {
     //course requirement
     public boolean isRequired() { return isRequired; }
     public void setRequired(boolean required) { isRequired = required; }
+    //course category
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 }
