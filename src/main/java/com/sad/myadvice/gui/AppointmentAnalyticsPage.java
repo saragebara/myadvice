@@ -5,15 +5,8 @@ import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class AppointmentAnalyticsPage extends JFrame {
-
-    private static final Color UW_BLUE = new Color(0, 51, 102);
-    private static final Color UW_GOLD = new Color(255, 204, 0);
-    private static final Color UW_GREY_BG = new Color(240, 242, 245);
-    private static final Color PANEL_BG = Color.WHITE;
 
     private JTable studentAnalyticsTable;
     private JTable facultyAnalyticsTable;
@@ -27,34 +20,43 @@ public class AppointmentAnalyticsPage extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
-        mainPanel.setBackground(UW_GREY_BG);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(UITheme.LIGHT_GREY);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(
+                UITheme.PAGE_PADDING,
+                UITheme.PAGE_PADDING,
+                UITheme.PAGE_PADDING,
+                UITheme.PAGE_PADDING
+        ));
 
-        JLabel titleLabel = new JLabel("Appointment Analytics", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 30));
-        titleLabel.setForeground(UW_BLUE);
+        JLabel titleLabel = UIComponents.createTitleLabel("Appointment Analytics");
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
         JPanel centerPanel = new JPanel(new GridLayout(2, 1, 20, 20));
-        centerPanel.setBackground(UW_GREY_BG);
+        centerPanel.setBackground(UITheme.LIGHT_GREY);
 
         JPanel studentPanel = new JPanel(new BorderLayout(10, 10));
-        studentPanel.setBackground(PANEL_BG);
+        studentPanel.setBackground(Color.WHITE);
         studentPanel.setBorder(new CompoundBorder(
-                new LineBorder(UW_BLUE, 2),
-                new EmptyBorder(10, 10, 10, 10)
+                new LineBorder(UITheme.UW_BLUE, 2),
+                new EmptyBorder(
+                        UITheme.CARD_PADDING - 5,
+                        UITheme.CARD_PADDING - 5,
+                        UITheme.CARD_PADDING - 5,
+                        UITheme.CARD_PADDING - 5
+                )
         ));
 
         JPanel studentGoldBar = new JPanel();
-        studentGoldBar.setBackground(UW_GOLD);
+        studentGoldBar.setBackground(UITheme.UW_GOLD);
         studentGoldBar.setPreferredSize(new Dimension(0, 6));
 
         JLabel studentLabel = new JLabel("Students With the Most Appointments");
-        studentLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        studentLabel.setForeground(UW_BLUE);
+        studentLabel.setFont(UITheme.TITLE_FONT);
+        studentLabel.setForeground(UITheme.UW_BLUE);
 
         JPanel studentTop = new JPanel(new BorderLayout());
-        studentTop.setBackground(PANEL_BG);
+        studentTop.setBackground(Color.WHITE);
         studentTop.add(studentGoldBar, BorderLayout.NORTH);
         studentTop.add(studentLabel, BorderLayout.CENTER);
 
@@ -73,22 +75,27 @@ public class AppointmentAnalyticsPage extends JFrame {
         studentPanel.add(new JScrollPane(studentAnalyticsTable), BorderLayout.CENTER);
 
         JPanel facultyPanel = new JPanel(new BorderLayout(10, 10));
-        facultyPanel.setBackground(PANEL_BG);
+        facultyPanel.setBackground(Color.WHITE);
         facultyPanel.setBorder(new CompoundBorder(
-                new LineBorder(UW_BLUE, 2),
-                new EmptyBorder(10, 10, 10, 10)
+                new LineBorder(UITheme.UW_BLUE, 2),
+                new EmptyBorder(
+                        UITheme.CARD_PADDING - 5,
+                        UITheme.CARD_PADDING - 5,
+                        UITheme.CARD_PADDING - 5,
+                        UITheme.CARD_PADDING - 5
+                )
         ));
 
         JPanel facultyGoldBar = new JPanel();
-        facultyGoldBar.setBackground(UW_GOLD);
+        facultyGoldBar.setBackground(UITheme.UW_GOLD);
         facultyGoldBar.setPreferredSize(new Dimension(0, 6));
 
         JLabel facultyLabel = new JLabel("Faculty With the Most Appointments");
-        facultyLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        facultyLabel.setForeground(UW_BLUE);
+        facultyLabel.setFont(UITheme.TITLE_FONT);
+        facultyLabel.setForeground(UITheme.UW_BLUE);
 
         JPanel facultyTop = new JPanel(new BorderLayout());
-        facultyTop.setBackground(PANEL_BG);
+        facultyTop.setBackground(Color.WHITE);
         facultyTop.add(facultyGoldBar, BorderLayout.NORTH);
         facultyTop.add(facultyLabel, BorderLayout.CENTER);
 
@@ -110,30 +117,24 @@ public class AppointmentAnalyticsPage extends JFrame {
         centerPanel.add(facultyPanel);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-       JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 18, 10));
-        buttonPanel.setBackground(UW_GREY_BG);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 18, 10));
+        buttonPanel.setBackground(UITheme.LIGHT_GREY);
 
-        JButton refreshButton = createPrimaryButton("Refresh");
-        JButton backButton = createSecondaryButton("Back");
+        JButton refreshButton = UIComponents.createPrimaryButton("Refresh");
+        JButton backButton = UIComponents.createSecondaryButton("Back");
 
         buttonPanel.add(refreshButton);
         buttonPanel.add(backButton);
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Analytics refreshed.");
-            }
-        });
+        refreshButton.addActionListener(e ->
+                JOptionPane.showMessageDialog(null, "Analytics refreshed.")
+        );
 
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ReportsDashboard();
-                dispose();
-            }
+        backButton.addActionListener(e -> {
+            new ReportsDashboard();
+            dispose();
         });
 
         add(mainPanel);
@@ -141,35 +142,15 @@ public class AppointmentAnalyticsPage extends JFrame {
     }
 
     private void styleTable(JTable table) {
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setFont(UITheme.BODY_FONT);
         table.setRowHeight(28);
         table.setGridColor(new Color(210, 210, 210));
         table.setSelectionBackground(new Color(220, 230, 245));
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(UW_BLUE);
+        header.setFont(UITheme.SUBTITLE_FONT);
+        header.setBackground(UITheme.UW_BLUE);
         header.setForeground(Color.WHITE);
         header.setReorderingAllowed(false);
     }
-
-   private JButton createPrimaryButton(String text) {
-    RoundedButton button = new RoundedButton(text, 25);
-
-    button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-    button.setButtonColors(UW_BLUE, new Color(0, 70, 140));
-    button.setPreferredSize(new Dimension(170, 42));
-
-    return button;
-}
-
-    private JButton createSecondaryButton(String text) {
-    RoundedButton button = new RoundedButton(text, 25);
-
-    button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-    button.setButtonColors(new Color(130, 130, 130), new Color(100, 100, 100));
-    button.setPreferredSize(new Dimension(170, 42));
-
-    return button;
-}
 }
