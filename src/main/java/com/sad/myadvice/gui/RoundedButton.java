@@ -2,74 +2,43 @@ package com.sad.myadvice.gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
-public class RoundedButton extends JButton {
+public class UIComponents {
 
-    private final int radius;
-    private Color normalColor;
-    private Color hoverColor;
+    // Standard radius for buttons
+    private static final int BUTTON_RADIUS = 15;
 
-    public RoundedButton(String text, int radius) {
-        super(text);
-        this.radius = radius;
-
-        setContentAreaFilled(false);
-        setFocusPainted(false);
-        setBorderPainted(false);
-        setOpaque(false);
-        setForeground(Color.WHITE);
-
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                if (hoverColor != null) {
-                    setBackground(hoverColor);
-                }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                if (normalColor != null) {
-                    setBackground(normalColor);
-                }
-            }
-        });
+    // Primary button (main actions)
+    public static JButton createPrimaryButton(String text) {
+        RoundedButton button = new RoundedButton(text, BUTTON_RADIUS);
+        button.setFont(UITheme.BODY_FONT);
+        button.setButtonColors(UITheme.UW_BLUE, UITheme.UW_GOLD);
+        button.setForeground(Color.WHITE);
+        return button;
     }
 
-    public void setButtonColors(Color normalColor, Color hoverColor) {
-        this.normalColor = normalColor;
-        this.hoverColor = hoverColor;
-        setBackground(normalColor);
+    // Secondary button
+    public static JButton createSecondaryButton(String text) {
+        RoundedButton button = new RoundedButton(text, BUTTON_RADIUS);
+        button.setFont(UITheme.BODY_FONT);
+        button.setButtonColors(UITheme.UW_GOLD, UITheme.UW_BLUE);
+        button.setForeground(UITheme.TEXT_DARK);
+        return button;
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        if (getModel().isPressed()) {
-            g2.setColor(getBackground().darker());
-        } else {
-            g2.setColor(getBackground());
-        }
-
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
-        g2.dispose();
-
-        super.paintComponent(g);
+    // Page title
+    public static JLabel createTitleLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(UITheme.TITLE_FONT);
+        label.setForeground(UITheme.TEXT_DARK);
+        return label;
     }
 
-    @Override
-    protected void paintBorder(Graphics g) {
-        Graphics2D g2 = (Graphics2D) g.create();
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(getBackground().darker());
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
-
-        g2.dispose();
+    // Subtitle
+    public static JLabel createSubtitleLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(UITheme.SUBTITLE_FONT);
+        label.setForeground(UITheme.TEXT_DARK);
+        return label;
     }
 }
