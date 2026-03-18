@@ -1,0 +1,35 @@
+GET http://localhost:8081/studentsexot
+
+###
+POST http://localhost:8081/students
+Content-Type: application/json
+
+{
+  "firstName": "jimmy",
+  "lastName": "Smith",
+  "email": "jimmy@school.edu",
+  "course": "COMP-3150"
+}
+
+###
+GET http://localhost:8081/students/8
+
+###
+PUT http://localhost:8081/students/8
+Content-Type: application/json
+
+{
+  "firstName": "Alice",
+  "lastName": "Brown",
+  "email": "sara@school.edu",
+  "course": "COMP-2800"
+}
+
+###
+DELETE http://localhost:8081/students/8
+
+###
+GET http://localhost:8081/students/export/json
+
+###
+GET http://localhost:8081/students/export/csv
