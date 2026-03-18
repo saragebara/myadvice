@@ -1,31 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.sad.myadvice.advising.ui.MainController"
-            prefWidth="900" prefHeight="600">
+            prefWidth="1000" prefHeight="680"
+            style="-fx-background-color: #F0F2F5;">
 
-    <!-- Sidebar -->
+    <!-- ── SIDEBAR ── -->
     <left>
-        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #2E5FA3; -fx-min-width: 180;">
-            <Label text="myAdvice" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: white;"/>
-            <Label text="Student Portal" style="-fx-text-fill: #cccccc; -fx-font-size: 11;"/>
-            <Separator style="-fx-background-color: #ffffff;"/>
-            <Button fx:id="btnProgress" text="My Progress" onAction="#showProgress"
-                    maxWidth="Infinity" style="-fx-background-color: #1F3864; -fx-text-fill: white;"/>
-            <Button fx:id="btnEligible" text="Eligible Courses" onAction="#showEligible"
-                    maxWidth="Infinity" style="-fx-background-color: #1F3864; -fx-text-fill: white;"/>
-            <Button fx:id="btnCourseDetails" text="Course Details" onAction="#showCourseDetails"
-                    maxWidth="Infinity" style="-fx-background-color: #1F3864; -fx-text-fill: white;"/>
-            <Button fx:id="btnPlans" text="My Plans" onAction="#showPlans"
-                    maxWidth="Infinity" style="-fx-background-color: #1F3864; -fx-text-fill: white;"/>
+        <VBox spacing="8"
+              style="-fx-background-color: #003366; -fx-min-width: 210; -fx-padding: 24 16 24 16;">
+
+            <!-- Logo area -->
+            <Label text="myAdvice"
+                   style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Label text="University of Windsor"
+                   style="-fx-font-size: 11; -fx-text-fill: #CCCCCC;"/>
+
+            <!-- Gold divider -->
+            <Region style="-fx-background-color: #FFCC00; -fx-min-height: 3; -fx-max-height: 3;"
+                    maxWidth="Infinity"/>
+
+            <Label text="Student Portal"
+                   style="-fx-font-size: 11; -fx-text-fill: #CCCCCC; -fx-padding: 4 0 8 0;"/>
+
+            <!-- Navigation buttons -->
+            <Button fx:id="btnProgress"
+                    text="📊  My Progress"
+                    onAction="#showProgress"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+
+            <Button fx:id="btnEligible"
+                    text="✅  Eligible Courses"
+                    onAction="#showEligible"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+
+            <Button fx:id="btnCourseDetails"
+                    text="🔍  Course Details"
+                    onAction="#showCourseDetails"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+
+            <Button fx:id="btnPlans"
+                    text="📋  My Plans"
+                    onAction="#showPlans"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+
+            <!-- Spacer -->
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Footer -->
+            <Region style="-fx-background-color: #FFCC00; -fx-min-height: 3; -fx-max-height: 3;"
+                    maxWidth="Infinity"/>
+            <Label text="COMP 2800 · SAD Inc."
+                   style="-fx-font-size: 10; -fx-text-fill: #CCCCCC; -fx-padding: 4 0 0 0;"/>
         </VBox>
     </left>
 
-    <!-- Main content area -->
+    <!-- ── MAIN CONTENT AREA ── -->
     <center>
-        <StackPane fx:id="contentArea" style="-fx-padding: 20;"/>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: #F0F2F5; -fx-border-color: transparent;">
+            <content>
+                <StackPane fx:id="contentArea"
+                           style="-fx-background-color: #F0F2F5;"/>
+            </content>
+        </ScrollPane>
     </center>
 
 </BorderPane>
