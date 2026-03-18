@@ -1,0 +1,287 @@
+/* Main Application Theme - Easily Customizable */
+
+/* ============ ROOT COLOR VARIABLES ============ */
+/* Change these primary colors to customize the entire application */
+.root {
+    /* Primary brand colors */
+    -fx-primary-color: #0b5fff;
+    -fx-primary-dark: #0847bf;
+    -fx-primary-light: #4d8cff;
+    
+    /* Secondary colors */
+    -fx-secondary-color: #6366f1;
+    -fx-secondary-dark: #4f46e5;
+    -fx-secondary-light: #818cf8;
+    
+    /* Accent colors */
+    -fx-accent-color: #10b981;
+    -fx-accent-dark: #059669;
+    -fx-warning-color: #f59e0b;
+    -fx-danger-color: #ef4444;
+    
+    /* Base colors */
+    -fx-background-color: #f8fafc;
+    -fx-surface-color: #ffffff;
+    -fx-surface-dark: #f1f5f9;
+    -fx-text-color: #1e293b;
+    -fx-text-muted: #64748b;
+    -fx-border-color: #e2e8f0;
+}
+
+/* ============ GENERAL STYLING ============ */
+.root {
+    -fx-font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
+    -fx-font-size: 12px;
+}
+
+/* ============ WINDOW STYLING ============ */
+.titled-pane {
+    -fx-text-fill: -fx-text-color;
+}
+
+.titled-pane .title {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+}
+
+.titled-pane .content {
+    -fx-border-width: 0;
+    -fx-padding: 15px;
+}
+
+/* ============ BUTTON STYLING ============ */
+.button {
+    -fx-padding: 10px 20px;
+    -fx-font-size: 12px;
+    -fx-border-radius: 5px;
+    -fx-cursor: hand;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button:default {
+    -fx-background-color: -fx-primary-color;
+    -fx-border-color: -fx-primary-dark;
+}
+
+.button:default:hover {
+    -fx-background-color: -fx-primary-dark;
+}
+
+.button:default:pressed {
+    -fx-background-color: #063aa8;
+}
+
+.button:secondary {
+    -fx-background-color: -fx-secondary-color;
+    -fx-border-color: -fx-secondary-dark;
+}
+
+.button:secondary:hover {
+    -fx-background-color: -fx-secondary-dark;
+}
+
+.button.danger {
+    -fx-background-color: -fx-danger-color;
+    -fx-border-color: #dc2626;
+}
+
+.button.danger:hover {
+    -fx-background-color: #dc2626;
+}
+
+.button.success {
+    -fx-background-color: -fx-accent-color;
+    -fx-border-color: -fx-accent-dark;
+}
+
+.button.success:hover {
+    -fx-background-color: -fx-accent-dark;
+}
+
+.button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+/* ============ TEXT FIELD STYLING ============ */
+.text-field, .text-area, .password-field, .combo-box {
+    -fx-padding: 8px 12px;
+    -fx-border-color: -fx-border-color;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-text-color;
+    -fx-control-inner-background: -fx-surface-color;
+    -fx-highlight-fill: -fx-primary-light;
+}
+
+.text-field:focused, .text-area:focused, .password-field:focused, .combo-box:focused {
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 2px;
+    -fx-focus-color: -fx-primary-light;
+}
+
+/* ============ LABEL STYLING ============ */
+.label {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 12px;
+}
+
+.label.title {
+    -fx-text-fill: -fx-text-color;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.label.subtitle {
+    -fx-text-fill: -fx-text-muted;
+    -fx-font-size: 14px;
+}
+
+/* ============ TABLE VIEW STYLING ============ */
+.table-view {
+    -fx-background-color: -fx-surface-color;
+    -fx-border-color: -fx-border-color;
+}
+
+.table-view .column-header {
+    -fx-background-color: -fx-primary-light;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.table-view .table-row-cell {
+    -fx-padding: 8px;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: -fx-surface-dark;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: -fx-primary-light;
+    -fx-text-fill: white;
+}
+
+/* ============ TREE VIEW STYLING ============ */
+.tree-view {
+    -fx-background-color: -fx-surface-color;
+    -fx-border-color: -fx-border-color;
+}
+
+.tree-cell {
+    -fx-padding: 5px;
+    -fx-font-size: 12px;
+}
+
+.tree-cell:selected {
+    -fx-background-color: -fx-primary-light;
+    -fx-text-fill: white;
+}
+
+/* ============ MENU BAR STYLING ============ */
+.menu-bar {
+    -fx-background-color: -fx-primary-color;
+}
+
+.menu-bar .menu .label {
+    -fx-text-fill: white;
+}
+
+.menu-item:hover {
+    -fx-background-color: -fx-primary-dark;
+}
+
+.menu-item:focused {
+    -fx-background-color: -fx-primary-dark;
+}
+
+/* ============ TAB PANE STYLING ============ */
+.tab-pane {
+    -fx-background-color: -fx-surface-dark;
+}
+
+.tab-pane .tab {
+    -fx-padding: 10px 20px;
+    -fx-background-color: -fx-surface-dark;
+    -fx-text-fill: -fx-text-color;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+}
+
+.tab-pane .tab-header-background {
+    -fx-background-color: -fx-surface-dark;
+}
+
+/* ============ SCROLL BAR STYLING ============ */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: -fx-primary-light;
+    -fx-background-radius: 5px;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: -fx-primary-color;
+}
+
+/* ============ SPINNER STYLING ============ */
+.spinner {
+    -fx-padding: 8px;
+}
+
+.spinner .text-field {
+    -fx-padding: 8px 12px;
+}
+
+/* ============ SEPARATOR STYLING ============ */
+.separator {
+    -fx-border-color: -fx-border-color;
+}
+
+/* ============ DIALOG STYLING ============ */
+.dialog-pane {
+    -fx-background-color: -fx-surface-color;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: -fx-primary-light;
+}
+
+.dialog-pane .button {
+    -fx-min-width: 80px;
+}
+
+/* ============ HYPERLINK STYLING ============ */
+.hyperlink {
+    -fx-text-fill: -fx-primary-color;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: -fx-primary-dark;
+    -fx-underline: true;
+}
+
+/* ============ CHOICE BOX STYLING ============ */
+.choice-box {
+    -fx-padding: 8px 12px;
+    -fx-border-color: -fx-border-color;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
+/* ============ ALERT DIALOGS ============ */
+.alert .content {
+    -fx-padding: 15px;
+}
+
+.alert .title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
