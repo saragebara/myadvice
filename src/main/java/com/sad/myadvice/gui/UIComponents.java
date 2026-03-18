@@ -7,7 +7,7 @@ public class UIComponents {
 
     // Creates a standard primary button used across the GUI
     public static JButton createPrimaryButton(String text) {
-        JButton button = new RoundedButton(text);
+        JButton button = new RoundedButton(text, 15);
         button.setBackground(UITheme.UW_BLUE);
         button.setForeground(Color.WHITE);
         button.setFont(UITheme.BODY_FONT);
@@ -18,7 +18,7 @@ public class UIComponents {
 
     // Creates a secondary button
     public static JButton createSecondaryButton(String text) {
-        JButton button = new RoundedButton(text);
+        JButton button = new RoundedButton(text, 15);
         button.setBackground(UITheme.UW_GOLD);
         button.setForeground(UITheme.TEXT_DARK);
         button.setFont(UITheme.BODY_FONT);
