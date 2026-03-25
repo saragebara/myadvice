@@ -7,24 +7,20 @@ public class UIComponents {
 
     // Creates a standard primary button used across the GUI
     public static JButton createPrimaryButton(String text) {
-        JButton button = new RoundedButton(text, 15);
-        button.setBackground(UITheme.UW_BLUE);
-        button.setForeground(Color.WHITE);
-        button.setFont(UITheme.BODY_FONT);
-        button.setFocusPainted(false);
-        button.setBorder(new RoundedBorder(10));
-        return button;
+    RoundedButton button = new RoundedButton(text, 15);
+    button.setFont(UITheme.BODY_FONT);
+    button.setButtonColors(UITheme.UW_BLUE, UITheme.UW_BLUE.brighter());
+    button.setForeground(Color.WHITE);
+    return button;
     }
 
     // Creates a secondary button
-    public static JButton createSecondaryButton(String text) {
-        JButton button = new RoundedButton(text, 15);
-        button.setBackground(UITheme.UW_GOLD);
-        button.setForeground(UITheme.TEXT_DARK);
-        button.setFont(UITheme.BODY_FONT);
-        button.setFocusPainted(false);
-        button.setBorder(new RoundedBorder(10));
-        return button;
+   public static JButton createSecondaryButton(String text) {
+    RoundedButton button = new RoundedButton(text, 15);
+    button.setFont(UITheme.BODY_FONT);
+    button.setButtonColors(new Color(120,120,120), new Color(90,90,90));
+    button.setForeground(Color.WHITE);
+    return button;
     }
 
     // Creates a standard title label
