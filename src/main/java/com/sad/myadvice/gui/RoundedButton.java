@@ -1,7 +1,8 @@
 package com.sad.myadvice.gui;
-
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class RoundedButton extends JButton {
 
@@ -19,15 +20,23 @@ public class RoundedButton extends JButton {
         setOpaque(false);
 
         // simple hover effect
-        addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                setBackground(hoverColor);
-            }
+       addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        if (hoverColor != null) {
+            setBackground(hoverColor);
+            repaint();
+        }
+    }
 
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                setBackground(normalColor);
-            }
-        });
+    @Override
+    public void mouseExited(MouseEvent e) {
+        if (normalColor != null) {
+            setBackground(normalColor);
+            repaint();
+        }
+    }
+    });
     }
 
     public void setButtonColors(Color normal, Color hover) {
