@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Manager</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0b5fff;
+      --accent-dark: #0847bf;
+      --danger: #b42318;
+      --border: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #eef3ff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 2rem;
+    }
+
+    p {
+      margin-top: 0;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 16px;
+      box-shadow: 0 8px 22px rgba(2, 8, 20, 0.06);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 2fr auto;
+      gap: 10px;
+      align-items: center;
+      max-width: 360px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    button {
+      border: none;
+      background: var(--accent);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover { background: var(--accent-dark); }
+    button.danger { background: var(--danger); }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      min-height: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .search-row {
+        grid-template-columns: 1fr;
+        max-width: none;
+      }
+
+      table, thead, tbody, tr, td, th {
+        display: block;
+      }
+
+      thead { display: none; }
+
+      tr {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 10px;
+        padding: 8px;
+      }
+
+      td {
+        border: none;
+        padding: 6px 0;
+      }
+
+      td::before {
+        content: attr(data-label) ": ";
+        font-weight: 700;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Student Manager</h1>
+    <p>Frontend page served by Spring Boot. JavaScript calls your API at /students, which is backed by MariaDB.</p>
+
+    <div class="card">
+      <h2>Add Student</h2>
+      <div class="row">
+        <input id="firstName" placeholder="First Name" required>
+        <input id="lastName" placeholder="Last Name" required>
+        <input id="email" placeholder="Email" type="email">
+        <input id="course" placeholder="Course">
+      </div>
+      <div class="toolbar">
+        <button id="addBtn" type="button">Add Student</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Find Student by ID</h2>
+      <div class="search-row">
+        <input id="searchId" placeholder="Student ID" type="number" min="1">
+        <button id="searchBtn" type="button">Search</button>
+      </div>
+      <div class="toolbar">
+        <button id="refreshBtn" type="button">Refresh All</button>
+      </div>
+      <div id="status" class="status"></div>
+
+      <table id="studentsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Course</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
