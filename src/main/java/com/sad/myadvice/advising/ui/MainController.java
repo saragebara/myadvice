@@ -33,33 +33,36 @@ public class MainController implements Initializable {
     private final FacultyReportScreen facultyReportScreen;
     private final AppointmentAnalyticsScreen appointmentAnalyticsScreen;
 
+    private final HomeScreen homeScreen;
+
     private User currentStudent;
 
     public MainController(UserRepository userRepository,
-                          ProgressScreen progressScreen,
-                          EligibleScreen eligibleScreen,
-                          CourseDetailsScreen courseDetailsScreen,
-                          PlansScreen plansScreen,
-                          ReportsDashboardScreen reportsDashboardScreen,
-                          StudentsReportScreen studentsReportScreen,
-                          FacultyReportScreen facultyReportScreen,
-                          AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
-        this.userRepository = userRepository;
-        this.progressScreen = progressScreen;
-        this.eligibleScreen = eligibleScreen;
-        this.courseDetailsScreen = courseDetailsScreen;
-        this.plansScreen = plansScreen;
-        this.reportsDashboardScreen = reportsDashboardScreen;
-        this.studentsReportScreen = studentsReportScreen;
-        this.facultyReportScreen = facultyReportScreen;
-        this.appointmentAnalyticsScreen = appointmentAnalyticsScreen;
-    }
+                      HomeScreen homeScreen,
+                      ProgressScreen progressScreen,
+                      EligibleScreen eligibleScreen,
+                      CourseDetailsScreen courseDetailsScreen,
+                      PlansScreen plansScreen,
+                      ReportsDashboardScreen reportsDashboardScreen,
+                      StudentsReportScreen studentsReportScreen,
+                      FacultyReportScreen facultyReportScreen,
+                      AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
+    this.userRepository = userRepository;
+    this.homeScreen = homeScreen;
+    this.progressScreen = progressScreen;
+    this.eligibleScreen = eligibleScreen;
+    this.courseDetailsScreen = courseDetailsScreen;
+    this.plansScreen = plansScreen;
+    this.reportsDashboardScreen = reportsDashboardScreen;
+    this.studentsReportScreen = studentsReportScreen;
+    this.facultyReportScreen = facultyReportScreen;
+    this.appointmentAnalyticsScreen = appointmentAnalyticsScreen;
+}
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         currentStudent = userRepository.findByStudentId("110177359");
-        setActiveButton(btnProgress);
-        showReportsDashboard();
+        showHome();
     }
 
     // NAVIGATION -------------------------------------------------------------------
@@ -111,6 +114,12 @@ public class MainController implements Initializable {
     public void showAppointmentAnalytics() {
         setContent(appointmentAnalyticsScreen.build(currentStudent, this));
     }
+
+    @FXML
+    public void showHome() {
+        setActiveButton(null);
+        setContent(homeScreen.build(currentStudent, this));
+}
 
     // HELPERS -------------------------------------------------------------------
 
