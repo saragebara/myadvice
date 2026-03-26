@@ -28,22 +28,38 @@ public class MainController implements Initializable {
     private final CourseDetailsScreen courseDetailsScreen;
     private final PlansScreen plansScreen;
 
+    private final ReportsDashboardScreen reportsDashboardScreen;
+    private final StudentsReportScreen studentsReportScreen;
+    private final FacultyReportScreen facultyReportScreen;
+    private final AppointmentAnalyticsScreen appointmentAnalyticsScreen;
+
     private User currentStudent;
 
-    public MainController(UserRepository userRepository, ProgressScreen progressScreen, EligibleScreen eligibleScreen,
-                          CourseDetailsScreen courseDetailsScreen, PlansScreen plansScreen) {
+    public MainController(UserRepository userRepository,
+                          ProgressScreen progressScreen,
+                          EligibleScreen eligibleScreen,
+                          CourseDetailsScreen courseDetailsScreen,
+                          PlansScreen plansScreen,
+                          ReportsDashboardScreen reportsDashboardScreen,
+                          StudentsReportScreen studentsReportScreen,
+                          FacultyReportScreen facultyReportScreen,
+                          AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
         this.userRepository = userRepository;
         this.progressScreen = progressScreen;
         this.eligibleScreen = eligibleScreen;
         this.courseDetailsScreen = courseDetailsScreen;
         this.plansScreen = plansScreen;
+        this.reportsDashboardScreen = reportsDashboardScreen;
+        this.studentsReportScreen = studentsReportScreen;
+        this.facultyReportScreen = facultyReportScreen;
+        this.appointmentAnalyticsScreen = appointmentAnalyticsScreen;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         currentStudent = userRepository.findByStudentId("110177359");
         setActiveButton(btnProgress);
-        showProgress();
+        showReportsDashboard();
     }
 
     // NAVIGATION -------------------------------------------------------------------
@@ -72,8 +88,32 @@ public class MainController implements Initializable {
         setContent(plansScreen.build(currentStudent));
     }
 
+    // Loads the Reports Dashboard screen into the main content area
+    @FXML
+    public void showReportsDashboard() {
+        setContent(reportsDashboardScreen.build(currentStudent, this));
+    }
+
+    // Loads the Students Report screen into the main content area
+    @FXML
+    public void showStudentsReport() {
+        setContent(studentsReportScreen.build(currentStudent, this));
+    }
+
+    // Loads the Faculty Report screen into the main content area
+    @FXML
+    public void showFacultyReport() {
+        setContent(facultyReportScreen.build(currentStudent, this));
+    }
+
+    // Loads the Appointment Analytics screen into the main content area
+    @FXML
+    public void showAppointmentAnalytics() {
+        setContent(appointmentAnalyticsScreen.build(currentStudent, this));
+    }
+
     // HELPERS -------------------------------------------------------------------
-    
+
     private void setContent(VBox view) {
         contentArea.getChildren().clear();
         contentArea.getChildren().add(view);
