@@ -18,7 +18,12 @@ public class User {
 
     private String studentId;  //student id, NULL for faculty/staff
 
+    private String password; //user's password for login
+
     public enum Role { STUDENT, FACULTY, STAFF }
+
+    @Enumerated(EnumType.STRING)
+    private Major major;  // null for faculty/staff
 
     //----Getters and setters----
     //id
@@ -35,4 +40,10 @@ public class User {
     //student id
     public String getStudentId() { return studentId; }
     public void setStudentId(String studentId) { this.studentId = studentId; }
+    //password
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    //major (for student)
+    public Major getMajor() { return major; }
+    public void setMajor(Major major) { this.major = major; }
 }
