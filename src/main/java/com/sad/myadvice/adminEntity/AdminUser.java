@@ -1,12 +1,15 @@
-package com.sad.myadvice.entity;
+package com.sad.myadvice.adminEntity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
-@Table(name = "users")
-public class User {
-
-    @Id //(Primary key)
+public class AdminUser {
+    @Id //primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) //Auto-increments id every time new user is added
     private Long id;
 
@@ -16,11 +19,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;  //students, faculty, staff
 
-    private String studentId;  //student id, NULL for faculty/staff
+    public enum Role {FACULTY, STAFF }
 
-    public enum Role { STUDENT, FACULTY, STAFF }
-
-    //----Getters and setters----
+    //getters and setters
     //id
     public Long getId() { return id; }
     //name
@@ -29,10 +30,7 @@ public class User {
     //email
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-    //role (student/faculty/staff)
+    //role (faculty/staff)
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
-    //student id
-    public String getStudentId() { return studentId; }
-    public void setStudentId(String studentId) { this.studentId = studentId; }
 }
