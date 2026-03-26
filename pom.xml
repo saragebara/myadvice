@@ -68,6 +68,12 @@
 			<version>21</version>
 		</dependency>
 
+	<!-- JSON file parsing (for courses imported from CSS git)-->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
