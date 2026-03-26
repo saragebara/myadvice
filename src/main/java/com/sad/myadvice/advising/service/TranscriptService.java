@@ -22,6 +22,8 @@ public class TranscriptService {
 
     //Get only the completed courses for a student
     public List<Course> getCompletedCourses(User student) {
+        // Used by advising/ui/screens/SchedullingScreen.java to pre-check
+        // what courses are already completed before building a schedule.
         //findByStudentAndStatus is from TranscriptRepository. SQL query to find courses in a student's transcript that are completed
         //map(Transcript::getCourse) returns a clean list of courses instead of transcripts
         return transcriptRepository.findByStudentAndStatus(student, Transcript.Status.COMPLETED).stream()
@@ -30,6 +32,8 @@ public class TranscriptService {
 
     //Get only the in-progress courses for a student
     public List<Course> getInProgressCourses(User student) {
+        // Used by advising/ui/screens/SchedullingScreen.java to avoid
+        // duplicate planning of courses the student is already taking.
         return transcriptRepository
         //Queries for courses that are in progress and returns a list of those courses
             .findByStudentAndStatus(student, Transcript.Status.IN_PROGRESS).stream()
