@@ -2,6 +2,7 @@ package com.sad.myadvice.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "course_plan")
@@ -25,6 +26,10 @@ public class CoursePlan {
     private LocalDateTime createdAt; //creation date
     private boolean isApproved; //whether or not its been approved by a faculty member
 
+    //one to many relationship with plan items - one plan can have many items
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL) //cascade type makes it so that deleting a plan deletes all items too
+    private List<CoursePlanItem> items;
+
     //----Getters and setters----
     public Long getId() { return id; }
     public User getStudent() { return student; }
@@ -37,4 +42,6 @@ public class CoursePlan {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public boolean isApproved() { return isApproved; }
     public void setApproved(boolean approved) { isApproved = approved; }
+    public List<CoursePlanItem> getItems() { return items; }
+    public void setItems(List<CoursePlanItem> items) { this.items = items; }
 }

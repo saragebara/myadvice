@@ -1,6 +1,13 @@
 package com.sad.myadvice.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "course")
@@ -15,6 +22,22 @@ public class Course {
     private int credits; //# of credits
     private int yearLevel; //1, 2, 3, or 4
     private boolean isRequired; //whether it's a required course or not
+
+    @Enumerated(EnumType.STRING)
+    private Category category;
+    //stores the category of the course. will edit this later to include all requirements for different CS majors
+    public enum Category { 
+        CORE, ART, SOCIAL_SCIENCE, MATH, FREE_ELECTIVE
+    }
+
+    //text description of each course
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    //term availability
+    private boolean offeredFall;
+    private boolean offeredWinter;
+    private boolean offeredSummer;
 
     //----Getters and setters----
     //id
@@ -34,4 +57,17 @@ public class Course {
     //course requirement
     public boolean isRequired() { return isRequired; }
     public void setRequired(boolean required) { isRequired = required; }
+    //course category
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
+    //term availabilities
+    public boolean isOfferedFall() { return offeredFall; }
+    public void setOfferedFall(boolean offeredFall) { this.offeredFall = offeredFall; }
+    public boolean isOfferedWinter() { return offeredWinter; }
+    public void setOfferedWinter(boolean offeredWinter) { this.offeredWinter = offeredWinter; }
+    public boolean isOfferedSummer() { return offeredSummer; }
+    public void setOfferedSummer(boolean offeredSummer) { this.offeredSummer = offeredSummer; }
+    //descriptions 
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }
