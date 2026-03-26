@@ -30,6 +30,7 @@ public class DegreeRequirementSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        //only seeds if programs are empty
         if (courseProgramRepository.count() > 0) return;
 
         seedProgram(Major.CSG, csgRequirements());

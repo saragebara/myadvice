@@ -3,14 +3,22 @@ package com.sad.myadvice.reports.ui.screens;
 import com.sad.myadvice.advising.ui.MainController;
 import com.sad.myadvice.advising.ui.UITheme;
 import com.sad.myadvice.entity.User;
+import com.sad.myadvice.reports.service.ReportsService;
+
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 public class FacultyReportScreen {
+		//reports service to write to backend
+        private final ReportsService reportsService;
+        public FacultyReportScreen(ReportsService reportsService) {
+            this.reportsService = reportsService;
+        }
 
     // This method builds the Faculty Report page
     // We pass MainController so the Back button can switch back to the dashboard
@@ -83,12 +91,30 @@ public class FacultyReportScreen {
         }
 
         // Temporary sample data for layout testing
-        table.setItems(FXCollections.observableArrayList(
-                new String[]{"F101", "Dr. Ahmed", "Computer Science", "ahmed@uwindsor.ca", "32"},
-                new String[]{"F102", "Dr. Khan", "Engineering", "khan@uwindsor.ca", "21"},
-                new String[]{"F103", "Dr. Patel", "Mathematics", "patel@uwindsor.ca", "15"},
-                new String[]{"F104", "Dr. Lee", "Computer Science", "lee@uwindsor.ca", "28"}
-        ));
+        // table.setItems(FXCollections.observableArrayList(
+        //         new String[]{"F101", "Dr. Ahmed", "Computer Science", "ahmed@uwindsor.ca", "32"},
+        //         new String[]{"F102", "Dr. Khan", "Engineering", "khan@uwindsor.ca", "21"},
+        //         new String[]{"F103", "Dr. Patel", "Mathematics", "patel@uwindsor.ca", "15"},
+        //         new String[]{"F104", "Dr. Lee", "Computer Science", "lee@uwindsor.ca", "28"}
+        // ));
+
+		//get actual faculty data
+		Runnable refreshTable = () -> {
+			List<User> faculty = reportsService.filterFaculty(
+				facultyIdField.getText(),
+				nameField.getText()
+			);
+			table.setItems(FXCollections.observableArrayList(
+				faculty.stream().map(f -> new String[]{
+					f.getStudentId() != null ? f.getStudentId() : "N/A",
+					f.getName(),
+					"Computer Science", //dept is always CS
+					f.getEmail(),
+					String.valueOf(reportsService.getAppointmentCountForFaculty(f))
+				}).toList()
+			));
+		};
+		refreshTable.run();
 
         // ---------------- BUTTONS ----------------
         Button searchBtn = new Button("Search");
@@ -103,10 +129,8 @@ public class FacultyReportScreen {
         Button backBtn = new Button("Back");
         backBtn.setStyle(UITheme.STYLE_SECONDARY_BUTTON);
 
-        // Temporary placeholder until search is connected to real data
-        searchBtn.setOnAction(e ->
-                new Alert(Alert.AlertType.INFORMATION, "Search will connect to database later.").show()
-        );
+        //working search button
+        searchBtn.setOnAction(e -> refreshTable.run());
 
         // Reset all filter values to default
         resetBtn.setOnAction(e -> {
@@ -114,6 +138,7 @@ public class FacultyReportScreen {
             nameField.clear();
             departmentBox.setValue("All");
             availabilityBox.setValue("All");
+			refreshTable.run(); //add refresh table
         });
 
         // Temporary placeholder until report generation is fully implemented
