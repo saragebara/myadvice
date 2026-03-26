@@ -3,6 +3,8 @@ package com.sad.myadvice.reports.ui.screens;
 import com.sad.myadvice.advising.ui.MainController;
 import com.sad.myadvice.advising.ui.UITheme;
 import com.sad.myadvice.entity.User;
+import com.sad.myadvice.reports.service.ReportsService;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -12,6 +14,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ReportsDashboardScreen {
+    //backend service
+    private final ReportsService reportsService;
+    public ReportsDashboardScreen(ReportsService reportsService) {
+        this.reportsService = reportsService;
+    }
 
     // This method builds the main Reports Dashboard UI
     // We pass in the controller so buttons can trigger navigation
@@ -31,10 +38,14 @@ public class ReportsDashboardScreen {
         cardsPanel.setVgap(20);
 
         // Adding 4 summary cards
-        cardsPanel.add(createSummaryCard("Total Students", "250"), 0, 0);
-        cardsPanel.add(createSummaryCard("Total Faculty", "40"), 1, 0);
-        cardsPanel.add(createSummaryCard("Total Appointments", "120"), 0, 1);
-        cardsPanel.add(createSummaryCard("Most Booked Faculty", "Dr. Ahmed"), 1, 1);
+        cardsPanel.add(createSummaryCard("Total Students",
+            String.valueOf(reportsService.getTotalStudents())), 0, 0);
+        cardsPanel.add(createSummaryCard("Total Faculty",
+            String.valueOf(reportsService.getTotalFaculty())), 1, 0);
+        cardsPanel.add(createSummaryCard("Total Appointments",
+            String.valueOf(reportsService.getTotalAppointments())), 0, 1);
+        cardsPanel.add(createSummaryCard("Most Booked Faculty",
+            reportsService.getMostBookedFacultyName()), 1, 1);
 
         // Grid for navigation buttons
         GridPane buttonPanel = new GridPane();

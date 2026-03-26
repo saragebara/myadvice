@@ -1,16 +1,36 @@
 package com.sad.myadvice.reports.ui.screens;
 
+import org.springframework.stereotype.Component;
+
 import com.sad.myadvice.advising.ui.MainController;
 import com.sad.myadvice.advising.ui.UITheme;
 import com.sad.myadvice.entity.User;
+import com.sad.myadvice.reports.service.ReportsService;
+
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import org.springframework.stereotype.Component;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import java.util.List;
 
 @Component
 public class StudentsReportScreen {
+
+        //Reports service for wiring search function to backend
+        private final ReportsService reportsService;
+
+        public StudentsReportScreen(ReportsService reportsService) {
+        this.reportsService = reportsService;
+        }
 
     // This method builds the Students Report page
     // We pass MainController so the Back button can switch screens
@@ -83,12 +103,32 @@ public class StudentsReportScreen {
         }
 
         // Temporary sample data for UI testing
-        table.setItems(FXCollections.observableArrayList(
-                new String[]{"1001", "Ali Khan", "Computer Science", "3", "ali@uwindsor.ca"},
-                new String[]{"1002", "Sara Noor", "Computer Science", "2", "sara@uwindsor.ca"},
-                new String[]{"1003", "Hassan Malik", "Software Engineering", "4", "hassan@uwindsor.ca"},
-                new String[]{"1004", "Ayesha Tariq", "Data Science", "1", "ayesha@uwindsor.ca"}
-        ));
+        // table.setItems(FXCollections.observableArrayList(
+        //         new String[]{"1001", "Ali Khan", "Computer Science", "3", "ali@uwindsor.ca"},
+        //         new String[]{"1002", "Sara Noor", "Computer Science", "2", "sara@uwindsor.ca"},
+        //         new String[]{"1003", "Hassan Malik", "Software Engineering", "4", "hassan@uwindsor.ca"},
+        //         new String[]{"1004", "Ayesha Tariq", "Data Science", "1", "ayesha@uwindsor.ca"}
+        // ));
+
+        //get actual student data for table
+        Runnable refreshTable = () -> {
+                //refresh table with students from reports service
+                List<User> students = reportsService.filterStudents(
+                        studentIdField.getText(),
+                        nameField.getText(),
+                        programBox.getValue(),
+                        yearBox.getValue()
+                ); //set the items in the table to be each student's details
+                table.setItems(FXCollections.observableArrayList(
+                        students.stream().map(s -> new String[]{
+                        s.getStudentId() != null ? s.getStudentId() : "N/A",
+                        s.getName(),
+                        s.getMajor() != null ? s.getMajor().getFullName() : "N/A",
+                        s.getEmail()
+                        }).toList()
+                ));
+        };
+        refreshTable.run();
 
         // ---------------- BUTTONS ----------------
         Button searchBtn = new Button("Search");
@@ -103,10 +143,8 @@ public class StudentsReportScreen {
         Button backBtn = new Button("Back");
         backBtn.setStyle(UITheme.STYLE_SECONDARY_BUTTON);
 
-        // Temporary placeholder for search logic
-        searchBtn.setOnAction(e ->
-                new Alert(Alert.AlertType.INFORMATION, "Search functionality will be connected later.").show()
-        );
+        //proper search action
+        searchBtn.setOnAction(e -> refreshTable.run());
 
         // Reset all filter fields back to default
         resetBtn.setOnAction(e -> {
@@ -114,6 +152,7 @@ public class StudentsReportScreen {
             nameField.clear();
             programBox.setValue("All");
             yearBox.setValue("All");
+            refreshTable.run(); //add refresh table
         });
 
         // Temporary placeholder for generate report logic
