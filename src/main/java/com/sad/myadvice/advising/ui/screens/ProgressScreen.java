@@ -47,7 +47,7 @@ public class ProgressScreen {
         header.getChildren().add(headerText);
 
         // Completion card --------------------------------
-        List<Course> required = courseService.getRequiredCourses();
+        List<Course> required = curriculumService.getRequiredCoursesForMajor(student);
         double pct = transcriptService.getCompletionPercentage(student, required.size());
 
         ProgressBar progressBar = new ProgressBar(pct / 100);

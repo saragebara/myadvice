@@ -56,9 +56,13 @@ public class TranscriptService {
 
     //Calculate the overall degree completion percentage
     public double getCompletionPercentage(User student, int totalRequiredCourses) {
-        //finds all completed courses, filters by required courses and counts them
-        long completed = transcriptRepository.findByStudentAndStatus(student, Transcript.Status.COMPLETED)
-            .stream().filter(t -> t.getCourse().isRequired()).count();
-        return ((double) completed / totalRequiredCourses) * 100;
+        //gets all completed courses that are required for the student's major and calculates percentage
+        long completed = transcriptRepository
+            .findByStudentAndStatus(student, Transcript.Status.COMPLETED)
+            .stream()
+            .filter(t -> t.getCourse().isRequired())
+            .count();
+        //if total required courses is 0 then have a ternary just in case. otherwise division by 0 is an issue
+        return totalRequiredCourses == 0 ? 0 : ((double) completed / totalRequiredCourses)*100;
     }
 }
