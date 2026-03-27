@@ -51,17 +51,39 @@
                     maxWidth="Infinity"
                     style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
 
-            <Button fx:id="btnBooking"
-                    text="Academic Booking"
-                    onAction="#showBooking"
-                    maxWidth="Infinity"
-                    style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
-
+       
             <Button fx:id="btnSchedulling"
                     text="Schedulling"
                     onAction="#showSchedulling"
                     maxWidth="Infinity"
                     style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+        <Button fx:id="btnBooking"
+                text="📅  Book Appointment"
+                onAction="#showBooking"
+                maxWidth="Infinity"
+                style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+
+        <Button fx:id="btnReportDash"
+                text="📝  Reports Dashboard"
+                onAction="#showReportsDashboard"
+                maxWidth="Infinity"
+                style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+        <Button fx:id="btnStudentReport"
+                        text="📄  Student Report"
+                        onAction="#showStudentsReport"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+        <Button fx:id="btnFacultyReport"
+                        text="📄  Faculty Report"
+                        onAction="#showFacultyReport"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #1A4D80;-fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+        <Button fx:id="btnAppointmentAnalytics"
+                        text="📄  Appointment Analytics"
+                        onAction="#showAppointmentAnalytics"
+                        maxWidth="Infinity"
+                        style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>
+
 
             <!-- Spacer -->
             <Region VBox.vgrow="ALWAYS"/>
