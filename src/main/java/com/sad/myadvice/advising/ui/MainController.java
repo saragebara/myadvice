@@ -24,6 +24,7 @@ public class MainController implements Initializable {
     @FXML private Button btnCourseDetails;
     @FXML private Button btnPlans;
     @FXML private Button btnBooking;
+    @FXML private Button btnSchedulling;
     @FXML private Button btnReportDash;
     @FXML private Button btnStudentReport;
     @FXML private Button btnFacultyReport;
@@ -35,6 +36,8 @@ public class MainController implements Initializable {
     private final EligibleScreen eligibleScreen;
     private final CourseDetailsScreen courseDetailsScreen;
     private final PlansScreen plansScreen;
+    private final BookingScreen bookingScreen;
+    private final SchedullingScreen schedullingScreen;
 
     //booking screen
     private final BookingScreen bookingScreen;
@@ -49,7 +52,7 @@ public class MainController implements Initializable {
 
     public MainController(UserRepository userRepository, ProgressScreen progressScreen, EligibleScreen eligibleScreen,
                           CourseDetailsScreen courseDetailsScreen, PlansScreen plansScreen, BookingScreen bookingScreen,
-                          ReportsDashboardScreen reportsDashboardScreen, StudentsReportScreen studentsReportScreen,
+                          ReportsDashboardScreen reportsDashboardScreen,  SchedullingScreen schedullingScreen, StudentsReportScreen studentsReportScreen,
                           FacultyReportScreen facultyReportScreen,  AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
         this.userRepository = userRepository;
         this.progressScreen = progressScreen;
@@ -57,6 +60,7 @@ public class MainController implements Initializable {
         this.courseDetailsScreen = courseDetailsScreen;
         this.plansScreen = plansScreen;
         this.bookingScreen = bookingScreen;
+        this.schedullingScreen = schedullingScreen;
         this.reportsDashboardScreen = reportsDashboardScreen;
         this.studentsReportScreen = studentsReportScreen;
         this.facultyReportScreen = facultyReportScreen;
@@ -141,6 +145,19 @@ public class MainController implements Initializable {
 
     //-----------------------------------------------------------------------------
 
+    @FXML
+    public void showBooking() {
+        setActiveButton(btnBooking);
+        setContent(bookingScreen.build(currentStudent));
+    }
+
+    @FXML
+    public void showSchedulling() {
+        setActiveButton(btnSchedulling);
+        setContent(schedullingScreen.build(currentStudent));
+    }
+
+    // HELPERS -------------------------------------------------------------------
     // HELPERS 
     
     private void setContent(VBox view) {
@@ -149,7 +166,7 @@ public class MainController implements Initializable {
     }
 
     private void setActiveButton(Button btn) {
-        for (Button b : new Button[]{btnProgress, btnEligible, btnCourseDetails, btnPlans}) {
+        for (Button b : new Button[]{btnProgress, btnEligible, btnCourseDetails, btnPlans, btnBooking, btnSchedulling}) {
             if (b != null) b.setStyle(UITheme.STYLE_SIDEBAR_BUTTON);
         }
         if (btn != null) btn.setStyle(UITheme.STYLE_SIDEBAR_BUTTON_ACTIVE);
