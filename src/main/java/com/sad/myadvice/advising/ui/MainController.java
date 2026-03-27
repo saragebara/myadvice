@@ -36,7 +36,6 @@ public class MainController implements Initializable {
     private final EligibleScreen eligibleScreen;
     private final CourseDetailsScreen courseDetailsScreen;
     private final PlansScreen plansScreen;
-    private final BookingScreen bookingScreen;
     private final SchedullingScreen schedullingScreen;
 
     //booking screen
@@ -145,12 +144,7 @@ public class MainController implements Initializable {
 
     //-----------------------------------------------------------------------------
 
-    @FXML
-    public void showBooking() {
-        setActiveButton(btnBooking);
-        setContent(bookingScreen.build(currentStudent));
-    }
-
+    //scheduling page
     @FXML
     public void showSchedulling() {
         setActiveButton(btnSchedulling);
@@ -158,7 +152,6 @@ public class MainController implements Initializable {
     }
 
     // HELPERS -------------------------------------------------------------------
-    // HELPERS 
     
     private void setContent(VBox view) {
         contentArea.getChildren().clear();
