@@ -1,4 +1,4 @@
-package com.sad.myadvice.advising.ui.screens;
+package com.sad.myadvice.scheduling.ui;
 
 import com.sad.myadvice.advising.service.TranscriptService;
 import com.sad.myadvice.advising.ui.UITheme;

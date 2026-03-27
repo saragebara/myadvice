@@ -53,7 +53,7 @@
 
        
             <Button fx:id="btnSchedulling"
-                    text="Schedulling"
+                    text="📚   Scheduling"
                     onAction="#showSchedulling"
                     maxWidth="Infinity"
                     style="-fx-background-color: #1A4D80; -fx-text-fill: white; -fx-font-size: 14; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 10 12 10 12;"/>

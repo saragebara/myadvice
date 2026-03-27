@@ -15,22 +15,31 @@ myadvice/
   src/main/java/com/sad/myadvice/
     entity/           # Shared JPA entities (User, Course, Transcript, etc). Java classes that map to DB tables through Hibernate
     repository/       # Spring Data JPA repositories - interfaces that generate SQL queries 
-    advising/         # Sara: Curriculum Advising module
+    advising/         # Curriculum Advising module
       service/          # Logic
-      controller/       # Wiring UI to services
-      ui/               # JavaFX UI
-    booking/          # Sara: Bookings module
-      service/          
-      controller/       
-      ui/               
-    scheduling/       # Yousif: Scheduling module (to be added)
-    admin/            # Garrett: System Administration module (to be added)
-    reports/          # Zahra: Reports module (to be added)
+      ui/
+        screens/              # JavaFX UI screens
+        MainController.java   # Manager for showing different screens
+        UITheme.java          # Universal theme settings
+    booking/          # Bookings module
+      service/     
+      ui/              
+    scheduling/       # Scheduling module
+      service/
+      ui/
+    admin/            # System Administration module (to be added)
+    reports/          # Reports module
+      service/
+      ui/
+        screens/
+    DataSeeder.java               # Sample user data added to the DB when empty
+    CourseDataSeeder.java         # Adds UWindsor Core Undergrad CS courses to DB
+    DegreeRequirementSeeder.java  # Adds UWindsor CS Programs and their course reqs to DB
   src/main/resources/
     application.properties          # DB config and app settings
   src/test/java/com/sad/myadvice/   # Tests (mirrors the main structure)
   README.md
-  pom.xml            # Includes versions/dependencies
+  pom.xml            # Includes versions/dependencies/plugins
 ```
 
 
@@ -102,10 +111,10 @@ spring.main.web-application-type=none
 ## Step 5: Run App
 In your terminal, run:
 ```
-.\mvnw.cmd clean
-.\mvnw.cmd spring-boot:run
+.\mvnw.cmd clean               (this is optional but good to avoid possible errors)
+.\mvnw.cmd javafx:run
 ```
 > Make sure you run these from the **project root** (`C:\...\myadvice`) and NOT from inside the `src` folder (there's a myadvice folder inside src, don't run from there).
 
 It should say BUILD SUCCESS. To check that the database tables were created properly, check on HeidiSQL by querying ```SHOW TABLES;```.
-Currently, it should show `course`, `users`, `transcript`, `prerequisite`, `course_plan`, and `course_plan_item`.
+These tables will have some data in them from the DataSeeder files.

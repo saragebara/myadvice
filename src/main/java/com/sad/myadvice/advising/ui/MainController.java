@@ -5,6 +5,8 @@ import com.sad.myadvice.booking.ui.BookingScreen;
 import com.sad.myadvice.reports.ui.screens.*;
 import com.sad.myadvice.entity.User;
 import com.sad.myadvice.repository.UserRepository;
+import com.sad.myadvice.scheduling.ui.SchedullingScreen;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
