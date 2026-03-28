@@ -34,7 +34,7 @@ public class SchedullingScreen {
         VBox view = new VBox(UITheme.SPACING);
         view.setStyle(UITheme.STYLE_CONTENT_AREA);
 
-        Label title = pageTitle("Schedulling");
+        Label title = pageTitle("Scheduling");
         Label subtitle = bodyLabel(
             "Build a yearly schedule using your transcript progress and available sections."
         );

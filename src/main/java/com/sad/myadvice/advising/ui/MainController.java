@@ -1,17 +1,19 @@
 package com.sad.myadvice.advising.ui;
 
 import com.sad.myadvice.advising.ui.screens.*;
-import com.sad.myadvice.booking.ui.BookingScreen;
+import com.sad.myadvice.booking.ui.screens.*;
 import com.sad.myadvice.reports.ui.screens.*;
+import com.sad.myadvice.scheduling.ui.*;
 import com.sad.myadvice.entity.User;
-import com.sad.myadvice.repository.UserRepository;
-import com.sad.myadvice.scheduling.ui.SchedullingScreen;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+
+import org.springframework.scheduling.SchedulingAwareRunnable;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -19,151 +21,215 @@ import java.util.ResourceBundle;
 
 @Component
 public class MainController implements Initializable {
-
     @FXML private StackPane contentArea;
-    @FXML private Button btnProgress;
-    @FXML private Button btnEligible;
-    @FXML private Button btnCourseDetails;
-    @FXML private Button btnPlans;
-    @FXML private Button btnBooking;
-    @FXML private Button btnSchedulling;
-    @FXML private Button btnReportDash;
-    @FXML private Button btnStudentReport;
-    @FXML private Button btnFacultyReport;
-    @FXML private Button btnApptAnalytics;
+    @FXML private VBox sidebarButtons;
+    @FXML private Label sidebarRoleLabel;
+    @FXML private Label sidebarUserLabel;
 
-    //curriculum advising screens
-    private final UserRepository userRepository;
+    // STUDENT SCREENS ----------------------------------------------------------
     private final ProgressScreen progressScreen;
     private final EligibleScreen eligibleScreen;
     private final CourseDetailsScreen courseDetailsScreen;
     private final PlansScreen plansScreen;
+    private final BookingScreen bookingScreen;
     private final SchedullingScreen schedullingScreen;
 
-    //booking screen
-    private final BookingScreen bookingScreen;
+    // FACULTY SCREENS ----------------------------------------------------------
+    private final FacultyAppointmentRequestsScreen facultyRequestsScreen;
+    private final FacultyMyAppointmentsScreen facultyAppointmentsScreen;
+    private final FacultyAvailabilityScreen facultyAvailabilityScreen;
 
-    //reports screens
+    // STAFF SCREENS ------------------------------------------------------------
+    private final StaffAllAppointmentsScreen staffAppointmentsScreen;
+
+    // SHARED SCREENS -----------------------------------------------------------
     private final ReportsDashboardScreen reportsDashboardScreen;
     private final StudentsReportScreen studentsReportScreen;
     private final FacultyReportScreen facultyReportScreen;
     private final AppointmentAnalyticsScreen appointmentAnalyticsScreen;
 
-    private User currentStudent;
+    private User currentUser;
+    private Button activeButton;
 
-    public MainController(UserRepository userRepository, ProgressScreen progressScreen, EligibleScreen eligibleScreen,
-                          CourseDetailsScreen courseDetailsScreen, PlansScreen plansScreen, BookingScreen bookingScreen,
-                          ReportsDashboardScreen reportsDashboardScreen,  SchedullingScreen schedullingScreen, StudentsReportScreen studentsReportScreen,
-                          FacultyReportScreen facultyReportScreen,  AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
-        this.userRepository = userRepository;
+    public MainController(ProgressScreen progressScreen,
+            EligibleScreen eligibleScreen,
+            CourseDetailsScreen courseDetailsScreen,
+            PlansScreen plansScreen,
+            BookingScreen bookingScreen,
+            FacultyAppointmentRequestsScreen facultyRequestsScreen,
+            FacultyMyAppointmentsScreen facultyAppointmentsScreen,
+            FacultyAvailabilityScreen facultyAvailabilityScreen,
+            StaffAllAppointmentsScreen staffAppointmentsScreen,
+            ReportsDashboardScreen reportsDashboardScreen,
+            StudentsReportScreen studentsReportScreen,
+            FacultyReportScreen facultyReportScreen,
+            SchedullingScreen schedullingScreen,
+            AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
+
         this.progressScreen = progressScreen;
         this.eligibleScreen = eligibleScreen;
         this.courseDetailsScreen = courseDetailsScreen;
         this.plansScreen = plansScreen;
         this.bookingScreen = bookingScreen;
-        this.schedullingScreen = schedullingScreen;
+        this.facultyRequestsScreen = facultyRequestsScreen;
+        this.facultyAppointmentsScreen = facultyAppointmentsScreen;
+        this.facultyAvailabilityScreen = facultyAvailabilityScreen;
+        this.staffAppointmentsScreen = staffAppointmentsScreen;
         this.reportsDashboardScreen = reportsDashboardScreen;
         this.studentsReportScreen = studentsReportScreen;
         this.facultyReportScreen = facultyReportScreen;
         this.appointmentAnalyticsScreen = appointmentAnalyticsScreen;
+        this.schedullingScreen = schedullingScreen;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        setActiveButton(btnProgress);
-        //do not render screens until currentStudent is set to avoid bugs
+        //Sidebar is built dynamically in setCurrentUser() instead of initially
     }
 
+    //setting current user and getting their role
     public void setCurrentUser(User user) {
-        this.currentStudent = user;
-        //refresh the current screen with the authenticated user
-        showProgress();
+        this.currentUser = user;
+        sidebarUserLabel.setText(user.getName() + "  •  " + user.getRole());
+
+        //switching portal based on user's role
+        switch (user.getRole()) {
+            case STUDENT -> {
+                sidebarRoleLabel.setText("Student Portal");
+                buildStudentSidebar();
+                showProgress();
+            }
+            case FACULTY -> {
+                sidebarRoleLabel.setText("Faculty Portal");
+                buildFacultySidebar();
+                showAppointmentRequests();
+            }
+            case STAFF -> {
+                sidebarRoleLabel.setText("Staff Portal");
+                buildStaffSidebar();
+                showReportsDashboard();
+            }
+        }
     }
 
-    // NAVIGATION -------------------------------------------------------------------
+    //SIDEBAR BUILDERS
 
-    //-- CURRICULUM ADVISING ---------------------------------
-    //show current degree progress pane
-    @FXML 
-    public void showProgress() {
-        setActiveButton(btnProgress);
-        setContent(progressScreen.build(currentStudent));
-    }
-    //show eligible courses pane
-    @FXML
-    public void showEligible() {
-        setActiveButton(btnEligible);
-        setContent(eligibleScreen.build(currentStudent));
-    }
-    //show course details pane
-    @FXML
-    public void showCourseDetails() {
-        setActiveButton(btnCourseDetails);
-        setContent(courseDetailsScreen.build(currentStudent));
-    }
-    //show course plan pane
-    @FXML
-    public void showPlans() {
-        setActiveButton(btnPlans);
-        setContent(plansScreen.build(currentStudent));
-    }
-    //-- BOOKINGS ---------------------------------------------
-    //show bookings pane
-    @FXML
-    public void showBooking() {
-        setActiveButton(btnBooking);
-        setContent(bookingScreen.build(currentStudent));
+    private void buildStudentSidebar() {
+        sidebarButtons.getChildren().clear();
+        sidebarButtons.getChildren().addAll(
+            navButton("📊  My Progress", this::showProgress),
+            navButton("✅  Eligible Courses", this::showEligible),
+            navButton("🔍  Course Details", this::showCourseDetails),
+            navButton("📋  My Plans", this::showPlans),
+            navButton("📅  Book Appointment", this::showBooking),
+            navButton("📊  Reports", this::showReportsDashboard)
+        );
     }
 
-    //-- REPORTS ----------------------------------------------
-    // Loads the Reports Dashboard screen into the main content area
-    @FXML
+    private void buildFacultySidebar() {
+        sidebarButtons.getChildren().clear();
+        sidebarButtons.getChildren().addAll(
+            navButton("📬  Appointment Requests", this::showAppointmentRequests),
+            navButton("📆  My Appointments", this::showFacultyAppointments),
+            navButton("🕐  My Availability", this::showFacultyAvailability),
+            navButton("📊  Reports", this::showReportsDashboard)
+        );
+    }
+
+    private void buildStaffSidebar() {
+        sidebarButtons.getChildren().clear();
+        sidebarButtons.getChildren().addAll(
+            navButton("📆  All Appointments", this::showStaffAppointments),
+            navButton("📊  Reports", this::showReportsDashboard)
+        );
+    }
+
+    //NAVIGATION METHOSD ----------------------------------------------------------
+
+    //STUDENT ----------------------------------------------
+    public void showProgress() { //CURR ADVISING - Degree requirement progress
+        setContent(progressScreen.build(currentUser));
+    }
+
+    public void showEligible() { //CURR ADVISING - Eligible courses to take
+        setContent(eligibleScreen.build(currentUser));
+    }
+
+    public void showCourseDetails() { //CURR ADVISING - Course details
+        setContent(courseDetailsScreen.build(currentUser));
+    }
+
+    public void showPlans() { //CURR ADVISING - Future Course planning
+        setContent(plansScreen.build(currentUser));
+    }
+
+    public void showBooking() { //BOOKING - Book appointments with faculty
+        setContent(bookingScreen.build(currentUser));
+    }
+
+    public void showSchedulling(){ //SCHEDULING - Manage courses for upcoming semester
+        setContent(schedullingScreen.build(currentUser));
+    }
+
+    //FACULTY ----------------------------------------------
+    public void showAppointmentRequests() {
+        setContent(facultyRequestsScreen.build(currentUser));
+    }
+
+    public void showFacultyAppointments() {
+        setContent(facultyAppointmentsScreen.build(currentUser));
+    }
+
+    public void showFacultyAvailability() {
+        setContent(facultyAvailabilityScreen.build(currentUser));
+    }
+
+    //STAFF ------------------------------------------------
+    public void showStaffAppointments() {
+        setContent(staffAppointmentsScreen.build(currentUser));
+    }
+
+    //Shared - REPORTS ----------------------------------------------
+    // TO-DO UPDATE THIS TO BE DIFFERENT VIEWS
     public void showReportsDashboard() {
-        setActiveButton(btnReportDash);
-        setContent(reportsDashboardScreen.build(currentStudent, this));
+        setContent(reportsDashboardScreen.build(currentUser, this));
     }
 
-    // Loads the Students Report screen into the main content area
-    @FXML
     public void showStudentsReport() {
-        setActiveButton(btnStudentReport);
-        setContent(studentsReportScreen.build(currentStudent, this));
+        setContent(studentsReportScreen.build(currentUser, this));
     }
 
-    // Loads the Faculty Report screen into the main content area
-    @FXML
     public void showFacultyReport() {
-        setActiveButton(btnFacultyReport);
-        setContent(facultyReportScreen.build(currentStudent, this));
+        setContent(facultyReportScreen.build(currentUser, this));
     }
 
-    // Loads the Appointment Analytics screen into the main content area
-    @FXML
     public void showAppointmentAnalytics() {
-        setActiveButton(btnApptAnalytics);
-        setContent(appointmentAnalyticsScreen.build(currentStudent, this));
+        setContent(appointmentAnalyticsScreen.build(currentUser, this));
     }
 
-    //-----------------------------------------------------------------------------
+    //Helpers ------------------------------------------------------------------------
 
-    //scheduling page
-    @FXML
-    public void showSchedulling() {
-        setActiveButton(btnSchedulling);
-        setContent(schedullingScreen.build(currentStudent));
-    }
-
-    // HELPERS -------------------------------------------------------------------
-    
     private void setContent(VBox view) {
         contentArea.getChildren().clear();
         contentArea.getChildren().add(view);
     }
-
+    //nav button styling and action
+    private Button navButton(String text, Runnable action) {
+        Button b = new Button(text);
+        b.setStyle(UITheme.STYLE_SIDEBAR_BUTTON);
+        b.setMaxWidth(Double.MAX_VALUE);
+        b.setOnAction(e -> {
+            setActiveButton(b);
+            action.run();
+        });
+        return b;
+    }
+    //setting active button to be styled
     private void setActiveButton(Button btn) {
-        for (Button b : new Button[]{btnProgress, btnEligible, btnCourseDetails, btnPlans, btnBooking, btnSchedulling}) {
-            if (b != null) b.setStyle(UITheme.STYLE_SIDEBAR_BUTTON);
+        if (activeButton != null) {
+            activeButton.setStyle(UITheme.STYLE_SIDEBAR_BUTTON);
         }
-        if (btn != null) btn.setStyle(UITheme.STYLE_SIDEBAR_BUTTON_ACTIVE);
+        btn.setStyle(UITheme.STYLE_SIDEBAR_BUTTON_ACTIVE);
+        activeButton = btn;
     }
 }

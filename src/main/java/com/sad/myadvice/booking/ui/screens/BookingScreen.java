@@ -1,4 +1,4 @@
-package com.sad.myadvice.booking.ui;
+package com.sad.myadvice.booking.ui.screens;
 
 import com.sad.myadvice.booking.service.AvailabilityService;
 import com.sad.myadvice.booking.service.BookingService;
