@@ -132,10 +132,3 @@ public class PreviewLauncher extends Application {
         }
     }
 }
-
-// faculty page 
-// log out button --> login page 
-// get rid of buttons at the bottom 
-// logo 
-
-// ./mvnw clean javafx:run

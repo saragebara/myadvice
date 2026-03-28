@@ -1,9 +1,9 @@
 package com.sad.myadvice.advising.ui;
 
-/* SHARED UI THEME FOR JAVAFX (based on Zahra's GUI!)*/
+/* SHARED UI THEME FOR JAVAFX (based on Zahra's GUI!!!) */
 public class UITheme {
 
-    // COLORS -------------------------------------------------------------------
+    //COLORS -------------------------------------------------------------------
     public static final String UW_BLUE        = "#003366";
     public static final String UW_GOLD        = "#FFCC00";
     public static final String LIGHT_GREY     = "#F0F2F5";

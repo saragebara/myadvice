@@ -100,21 +100,25 @@ public class MainController implements Initializable {
         setContent(plansScreen.build(currentStudent));
     }
 
+    // Loads the Reports Dashboard screen into the main content area
     @FXML
     public void showReportsDashboard() {
         setContent(reportsDashboardScreen.build(currentStudent, this));
     }
 
+    // Loads the Students Report screen into the main content area
     @FXML
     public void showStudentsReport() {
         setContent(studentsReportScreen.build(currentStudent, this));
     }
 
+    // Loads the Faculty Report screen into the main content area
     @FXML
     public void showFacultyReport() {
         setContent(facultyReportScreen.build(currentStudent, this));
     }
 
+    // Loads the Appointment Analytics screen into the main content area
     @FXML
     public void showAppointmentAnalytics() {
         setContent(appointmentAnalyticsScreen.build(currentStudent, this));
