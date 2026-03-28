@@ -2,6 +2,12 @@ package com.sad.myadvice.advising.ui;
 
 import com.sad.myadvice.advising.ui.screens.*;
 import com.sad.myadvice.entity.User;
+import com.sad.myadvice.reports.AppointmentAnalyticsScreen;
+import com.sad.myadvice.reports.FacultyReportScreen;
+import com.sad.myadvice.reports.HomeFacultyScreen;
+import com.sad.myadvice.reports.HomeStudentScreen;
+import com.sad.myadvice.reports.ReportsDashboardScreen;
+import com.sad.myadvice.reports.StudentsReportScreen;
 import com.sad.myadvice.repository.UserRepository;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,31 +39,34 @@ public class MainController implements Initializable {
     private final FacultyReportScreen facultyReportScreen;
     private final AppointmentAnalyticsScreen appointmentAnalyticsScreen;
 
-    private final HomeScreen homeScreen;
+    private final HomeStudentScreen homeStudentScreen;
+    private final HomeFacultyScreen homeFacultyScreen;
 
     private User currentStudent;
 
     public MainController(UserRepository userRepository,
-                      HomeScreen homeScreen,
-                      ProgressScreen progressScreen,
-                      EligibleScreen eligibleScreen,
-                      CourseDetailsScreen courseDetailsScreen,
-                      PlansScreen plansScreen,
-                      ReportsDashboardScreen reportsDashboardScreen,
-                      StudentsReportScreen studentsReportScreen,
-                      FacultyReportScreen facultyReportScreen,
-                      AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
-    this.userRepository = userRepository;
-    this.homeScreen = homeScreen;
-    this.progressScreen = progressScreen;
-    this.eligibleScreen = eligibleScreen;
-    this.courseDetailsScreen = courseDetailsScreen;
-    this.plansScreen = plansScreen;
-    this.reportsDashboardScreen = reportsDashboardScreen;
-    this.studentsReportScreen = studentsReportScreen;
-    this.facultyReportScreen = facultyReportScreen;
-    this.appointmentAnalyticsScreen = appointmentAnalyticsScreen;
-}
+                          HomeStudentScreen homeStudentScreen,
+                          HomeFacultyScreen homeFacultyScreen,
+                          ProgressScreen progressScreen,
+                          EligibleScreen eligibleScreen,
+                          CourseDetailsScreen courseDetailsScreen,
+                          PlansScreen plansScreen,
+                          ReportsDashboardScreen reportsDashboardScreen,
+                          StudentsReportScreen studentsReportScreen,
+                          FacultyReportScreen facultyReportScreen,
+                          AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
+        this.userRepository = userRepository;
+        this.homeStudentScreen = homeStudentScreen;
+        this.homeFacultyScreen = homeFacultyScreen;
+        this.progressScreen = progressScreen;
+        this.eligibleScreen = eligibleScreen;
+        this.courseDetailsScreen = courseDetailsScreen;
+        this.plansScreen = plansScreen;
+        this.reportsDashboardScreen = reportsDashboardScreen;
+        this.studentsReportScreen = studentsReportScreen;
+        this.facultyReportScreen = facultyReportScreen;
+        this.appointmentAnalyticsScreen = appointmentAnalyticsScreen;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -91,25 +100,21 @@ public class MainController implements Initializable {
         setContent(plansScreen.build(currentStudent));
     }
 
-    // Loads the Reports Dashboard screen into the main content area
     @FXML
     public void showReportsDashboard() {
         setContent(reportsDashboardScreen.build(currentStudent, this));
     }
 
-    // Loads the Students Report screen into the main content area
     @FXML
     public void showStudentsReport() {
         setContent(studentsReportScreen.build(currentStudent, this));
     }
 
-    // Loads the Faculty Report screen into the main content area
     @FXML
     public void showFacultyReport() {
         setContent(facultyReportScreen.build(currentStudent, this));
     }
 
-    // Loads the Appointment Analytics screen into the main content area
     @FXML
     public void showAppointmentAnalytics() {
         setContent(appointmentAnalyticsScreen.build(currentStudent, this));
@@ -118,8 +123,14 @@ public class MainController implements Initializable {
     @FXML
     public void showHome() {
         setActiveButton(null);
-        setContent(homeScreen.build(currentStudent, this));
-}
+        setContent(homeStudentScreen.build(currentStudent, this));
+    }
+
+    @FXML
+    public void showFacultyHome() {
+        setActiveButton(null);
+        setContent(homeFacultyScreen.build(currentStudent, this));
+    }
 
     // HELPERS -------------------------------------------------------------------
 

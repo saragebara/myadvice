@@ -1,12 +1,14 @@
 package com.sad.myadvice;
 
 import com.sad.myadvice.advising.ui.MainController;
-import com.sad.myadvice.advising.ui.screens.AppointmentAnalyticsScreen;
-import com.sad.myadvice.advising.ui.screens.FacultyReportScreen;
-import com.sad.myadvice.advising.ui.screens.HomeScreen;
-import com.sad.myadvice.advising.ui.screens.ReportsDashboardScreen;
-import com.sad.myadvice.advising.ui.screens.StudentsReportScreen;
 import com.sad.myadvice.entity.User;
+import com.sad.myadvice.reports.AppointmentAnalyticsScreen;
+import com.sad.myadvice.reports.FacultyReportScreen;
+import com.sad.myadvice.reports.HomeFacultyScreen;
+import com.sad.myadvice.reports.HomeStudentScreen;
+import com.sad.myadvice.reports.ReportsDashboardScreen;
+import com.sad.myadvice.reports.StudentsReportScreen;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -25,7 +27,7 @@ public class PreviewLauncher extends Application {
         controller = new PreviewController();
         fakeUser = new User();
 
-        showHomeView();
+        showFacultyHomeView(); // change to showHomeView() if you want student first
 
         Scene scene = new Scene(root, 1000, 700);
         stage.setTitle("Home + Reports Preview");
@@ -44,7 +46,12 @@ public class PreviewLauncher extends Application {
     }
 
     private void showHomeView() {
-        HomeScreen screen = new HomeScreen();
+        HomeStudentScreen screen = new HomeStudentScreen();
+        setView(screen.build(fakeUser, controller));
+    }
+
+    private void showFacultyHomeView() {
+        HomeFacultyScreen screen = new HomeFacultyScreen();
         setView(screen.build(fakeUser, controller));
     }
 
@@ -71,12 +78,17 @@ public class PreviewLauncher extends Application {
     class PreviewController extends MainController {
 
         public PreviewController() {
-            super(null, null, null, null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null, null, null, null, null, null);
         }
 
         @Override
         public void showHome() {
             PreviewLauncher.this.showHomeView();
+        }
+
+        @Override
+        public void showFacultyHome() {
+            PreviewLauncher.this.showFacultyHomeView();
         }
 
         @Override
@@ -120,3 +132,10 @@ public class PreviewLauncher extends Application {
         }
     }
 }
+
+// faculty page 
+// log out button --> login page 
+// get rid of buttons at the bottom 
+// logo 
+
+// ./mvnw clean javafx:run

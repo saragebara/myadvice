@@ -1,4 +1,4 @@
-package com.sad.myadvice.advising.ui.screens;
+package com.sad.myadvice.reports;
 
 import com.sad.myadvice.advising.ui.MainController;
 import com.sad.myadvice.advising.ui.UITheme;
