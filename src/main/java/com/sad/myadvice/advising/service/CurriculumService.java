@@ -53,6 +53,15 @@ public class CurriculumService {
             .orElse(course.getYearLevel());
     }
 
+    //fixed logic -- required by major instead of global required flag implemented for MVP
+    public boolean isRequiredForMajor(User student, Course course) {
+        if (student.getMajor() == null) {
+            return course.isRequired(); //fallback to global flag in case of error
+        }
+        return courseProgramRepository.findByMajor(student.getMajor())
+            .stream().anyMatch(cp -> cp.getCourse().equals(course));
+    }
+
     //Check if a student is eligible for taking a specific course (has prereqs)
     public boolean isEligible(User student, Course course) {
         List<Prerequisite> prerequisites = prerequisiteRepository.findByCourse(course);
@@ -109,12 +118,11 @@ public class CurriculumService {
             .toList();
     }
 
-    //Gets all eligible electives courses a student can take
+    //checks all eligible electives a user can take 
+    //bug fix: use isrRequiredForMajor instead of getEligibleCourses to filter properly
     public List<Course> getEligibleElectives(User student) {
-        List<Course> required = getRequiredCoursesForMajor(student);
         return getEligibleCourses(student).stream()
-            .filter(c -> !required.contains(c)) //takes all eligible courses and sorts by not required
-            .toList();
+            .filter(c -> !isRequiredForMajor(student, c)).toList();
     }
 }
 

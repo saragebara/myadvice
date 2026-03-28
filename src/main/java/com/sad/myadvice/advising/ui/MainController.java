@@ -38,6 +38,8 @@ public class MainController implements Initializable {
     private final FacultyAppointmentRequestsScreen facultyRequestsScreen;
     private final FacultyMyAppointmentsScreen facultyAppointmentsScreen;
     private final FacultyAvailabilityScreen facultyAvailabilityScreen;
+    private final FacultyStudentProgressScreen facultyStudentProgressScreen;
+    private final FacultyCoursePlanScreen facultyCoursePlanScreen;
 
     // STAFF SCREENS ------------------------------------------------------------
     private final StaffAllAppointmentsScreen staffAppointmentsScreen;
@@ -59,6 +61,8 @@ public class MainController implements Initializable {
             FacultyAppointmentRequestsScreen facultyRequestsScreen,
             FacultyMyAppointmentsScreen facultyAppointmentsScreen,
             FacultyAvailabilityScreen facultyAvailabilityScreen,
+            FacultyCoursePlanScreen facultyCoursePlanScreen,
+            FacultyStudentProgressScreen facultyStudentProgressScreen,
             StaffAllAppointmentsScreen staffAppointmentsScreen,
             ReportsDashboardScreen reportsDashboardScreen,
             StudentsReportScreen studentsReportScreen,
@@ -74,6 +78,8 @@ public class MainController implements Initializable {
         this.facultyRequestsScreen = facultyRequestsScreen;
         this.facultyAppointmentsScreen = facultyAppointmentsScreen;
         this.facultyAvailabilityScreen = facultyAvailabilityScreen;
+        this.facultyCoursePlanScreen = facultyCoursePlanScreen;
+        this.facultyStudentProgressScreen = facultyStudentProgressScreen;
         this.staffAppointmentsScreen = staffAppointmentsScreen;
         this.reportsDashboardScreen = reportsDashboardScreen;
         this.studentsReportScreen = studentsReportScreen;
@@ -132,7 +138,9 @@ public class MainController implements Initializable {
             navButton("📬  Appointment Requests", this::showAppointmentRequests),
             navButton("📆  My Appointments", this::showFacultyAppointments),
             navButton("🕐  My Availability", this::showFacultyAvailability),
-            navButton("📊  Reports", this::showReportsDashboard)
+            navButton("📊  Reports", this::showReportsDashboard),
+            navButton("📈  Student Progress", this::showFacultyStudentProgress),
+            navButton("📋  Review Plans", this::showFacultyCoursePlans)
         );
     }
 
@@ -182,6 +190,13 @@ public class MainController implements Initializable {
 
     public void showFacultyAvailability() {
         setContent(facultyAvailabilityScreen.build(currentUser));
+    }
+
+    public void showFacultyStudentProgress() { 
+        setContent(facultyStudentProgressScreen.build(currentUser)); 
+    }
+    public void showFacultyCoursePlans() { 
+        setContent(facultyCoursePlanScreen.build(currentUser)); 
     }
 
     //STAFF ------------------------------------------------
