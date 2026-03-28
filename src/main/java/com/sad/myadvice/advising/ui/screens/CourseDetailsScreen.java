@@ -1,31 +1,40 @@
 package com.sad.myadvice.advising.ui.screens;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.sad.myadvice.advising.service.CourseService;
 import com.sad.myadvice.advising.service.CurriculumService;
 import com.sad.myadvice.advising.ui.UITheme;
 import com.sad.myadvice.entity.Course;
+import com.sad.myadvice.entity.Prerequisite;
 import com.sad.myadvice.entity.User;
+import com.sad.myadvice.repository.PrerequisiteRepository;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class CourseDetailsScreen {
+    //service/repository
     private final CourseService courseService;
     private final CurriculumService curriculumService;
-
-    public CourseDetailsScreen(CourseService courseService, CurriculumService curriculumService) {
+    private final PrerequisiteRepository prerequisiteRepository;
+    public CourseDetailsScreen(CourseService courseService,
+                               CurriculumService curriculumService,
+                               PrerequisiteRepository prerequisiteRepository) {
         this.courseService = courseService;
         this.curriculumService = curriculumService;
+        this.prerequisiteRepository = prerequisiteRepository;
     }
 
     public VBox build(User student) {
@@ -33,7 +42,7 @@ public class CourseDetailsScreen {
         view.setStyle(UITheme.STYLE_CONTENT_AREA);
         view.getChildren().add(pageTitle("Course Details"));
 
-        //Search bar ------------------------------
+        //Search bar -------------------------------------
         TextField searchField = styledTextField("Search by course code or name...");
         searchField.setPrefWidth(320);
         Button searchBtn = primaryButton("Search");
@@ -42,71 +51,63 @@ public class CourseDetailsScreen {
         HBox searchBar = new HBox(10, searchField, searchBtn, resetBtn);
         searchBar.setAlignment(Pos.CENTER_LEFT);
 
-        //Results list ------------------------------
-        ListView<String> resultsList = styledListView(140);
-        //keeping track of last results
+        //Results list -----------------
+        ListView<String> resultsList = styledListView(150);
         final List<Course>[] lastResults = new List[]{List.of()};
 
-        //Details panel ------------------------------ (when clicking a course)
-        VBox detailsPanel = new VBox(8);
+        //Details panel
+        VBox detailsPanel = new VBox(10);
         detailsPanel.setStyle(UITheme.STYLE_DETAILS_PANEL);
-        detailsPanel.getChildren().add(
-            bodyLabel("Select a course from the search results to see details.")
-        );
+        detailsPanel.getChildren().add(bodyLabel("Select a course from the search results to see details."));
 
-        //Search button action ----------------------------------
+        //Search button action
         searchBtn.setOnAction(e -> {
-            resultsList.getItems().clear(); //clearing results list
-            List<Course> results = courseService.searchCourses(searchField.getText());
-            lastResults[0] = results; //storing the courses that match
+            String query = searchField.getText().trim();
+            resultsList.getItems().clear();
+            detailsPanel.getChildren().setAll(bodyLabel("Select a course to see details."));
+
+            if (query.isEmpty()) {
+                lastResults[0] = List.of();
+                return;
+            }
+
+            List<Course> results = courseService.searchCourses(query);
+            lastResults[0] = results;
+
             if (results.isEmpty()) {
                 resultsList.getItems().add("No courses found.");
             } else {
-                for (Course c : results) { //add proper courses to results
-                    resultsList.getItems().add(c.getCode() + "  —  " + c.getName());
+                for (Course c : results) {
+                    //fixed: use isReqForMajor instead of global requiremnet flag
+                    boolean reqForMajor = curriculumService.isRequiredForMajor(student, c);
+                    String reqTag = reqForMajor ? " [Required]" : " [Elective]";
+                    resultsList.getItems().add(
+                        c.getCode() + "  —  " + c.getName() + "  (" + c.getCredits() + " cr)" + reqTag
+                    );
                 }
             }
         });
+        //allow enter key to search
+        searchField.setOnAction(e -> searchBtn.fire());
 
-        // Reset buttion action ---------------------------
+        //reset button action
         resetBtn.setOnAction(e -> {
-            searchField.clear(); //clearing search field
-            resultsList.getItems().clear(); //clearing results
-            lastResults[0] = List.of(); //empty list
-            detailsPanel.getChildren().setAll( //prompting user again
+            searchField.clear();
+            resultsList.getItems().clear();
+            lastResults[0] = List.of();
+            detailsPanel.getChildren().setAll(
                 bodyLabel("Select a course from the search results to see details.")
             );
         });
 
-        //Click result to see details -----------------------
         resultsList.setOnMouseClicked(e -> {
             int idx = resultsList.getSelectionModel().getSelectedIndex();
             if (idx < 0 || idx >= lastResults[0].size()) return;
+
             Course selected = lastResults[0].get(idx);
-
-            //checking if user is eligible to take the course and saving messages accordingly
-            boolean eligible = curriculumService.isEligible(student, selected);
-            String eligibleStr = eligible ? "✓ Yes" : "✗ No - prerequisites not met";
-            String eligibleColor = eligible ? "#2E7D32" : "#C62828";
-
-            Label eligibleLabel = new Label("Eligible to take: " + eligibleStr);
-            eligibleLabel.setStyle( //javafx styling for the label 
-                "-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + eligibleColor + ";"
-            );
-
-            detailsPanel.getChildren().setAll(
-                goldBar(),
-                boldLabel(selected.getCode() + "  —  " + selected.getName()),
-                bodyLabel("Credits: " + selected.getCredits()),
-                bodyLabel("Year Level: " + selected.getYearLevel()),
-                bodyLabel("Required: " + (selected.isRequired() ? "Yes" : "No")),
-                bodyLabel("Category: " + (selected.getCategory() != null
-                        ? selected.getCategory().toString() : "N/A")),
-                eligibleLabel
-            );
+            populateDetailsPanel(detailsPanel, selected, student);
         });
 
-        //Wrapping everything in a search card -----------------
         VBox searchCard = new VBox(10,
             goldBar(),
             sectionLabel("Search Courses"),
@@ -122,9 +123,71 @@ public class CourseDetailsScreen {
         return view;
     }
 
-    // Helpers for bar, title, section label, body label, bold label, buttons, text field, list view
-    //-----------------------------------------------------------------------------------------------
-    private Region goldBar() {
+    private void populateDetailsPanel(VBox panel, Course selected, User student) {
+        panel.getChildren().clear();
+
+        //check if required for user's major
+        boolean requiredForMajor = curriculumService.isRequiredForMajor(student, selected);
+        String requiredStr = requiredForMajor
+            ? "Yes (required for your major)"
+            : "No (elective for your major)";
+
+        //recommended year for the course
+        int recommendedYear = curriculumService.getRecommendedYear(student, selected);
+
+        //eligibility for a course
+        boolean eligible = curriculumService.isEligible(student, selected);
+        String eligibleStr = eligible ? "✓ Yes" : "✗ No — prerequisites not met";
+        String eligibleColor = eligible ? "#2E7D32" : "#C62828";
+        Label eligibleLabel = new Label("Eligible to take: " + eligibleStr);
+        eligibleLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + eligibleColor + ";");
+
+        //term availability
+        List<String> terms = new java.util.ArrayList<>();
+        if (selected.isOfferedFall())   terms.add("Fall");
+        if (selected.isOfferedWinter()) terms.add("Winter");
+        if (selected.isOfferedSummer()) terms.add("Summer");
+        String termsStr = terms.isEmpty() ? "Not specified" : String.join(", ", terms);
+
+        //prereqs from DB
+        List<Prerequisite> prereqs = prerequisiteRepository.findByCourse(selected);
+        String prereqStr;
+        if (prereqs.isEmpty()) {
+            prereqStr = "None";
+        } else {
+            prereqStr = prereqs.stream()
+                .map(p -> p.getRequiredCourse().getCode() + " (" + p.getType() + ")")
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("None");
+        }
+
+        //added course description information
+        String description = (selected.getDescription() != null && !selected.getDescription().isBlank())
+            ? selected.getDescription()
+            : "No description available.";
+        Label descLabel = new Label(description);
+        descLabel.setWrapText(true);
+        descLabel.setStyle(UITheme.STYLE_BODY_LABEL);
+
+        panel.getChildren().addAll(
+            goldBar(),
+            boldLabel(selected.getCode() + "  —  " + selected.getName()),
+            bodyLabel("Credits: " + selected.getCredits()),
+            bodyLabel("Year Level: " + selected.getYearLevel()),
+            bodyLabel("Required: " + (selected.isRequired() ? "Yes" : "No")),
+            bodyLabel("Category: " + (selected.getCategory() != null
+                    ? selected.getCategory().toString() : "N/A")),
+            bodyLabel("Offered: " + termsStr),
+            bodyLabel("Prerequisites: " + prereqStr),
+            sectionLabel("Description"),
+            descLabel,
+            new Separator(),
+            eligibleLabel
+        );
+    }
+
+    //Helpers ----------------------------------
+   private Region goldBar() {
         Region bar = new Region();
         bar.setStyle(UITheme.STYLE_GOLD_BAR);
         bar.setMaxWidth(Double.MAX_VALUE);
@@ -180,5 +243,5 @@ public class CourseDetailsScreen {
         lv.setPrefHeight(height);
         return lv;
     }
-    //-----------------------------------------------------------------------------------------------
 }
+    //-----------------------------------------------------------------------------------------------

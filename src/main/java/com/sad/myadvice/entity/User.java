@@ -25,6 +25,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Major major;  // null for faculty/staff
 
+    //advising notes written by faculty, visible to the student
+    @Column(columnDefinition = "TEXT")
+    private String advisingNotes;
+
     //----Getters and setters----
     //id
     public Long getId() { return id; }
@@ -46,4 +50,7 @@ public class User {
     //major (for student)
     public Major getMajor() { return major; }
     public void setMajor(Major major) { this.major = major; }
+    //advising notes
+    public String getAdvisingNotes() { return advisingNotes; }
+    public void setAdvisingNotes(String advisingNotes) { this.advisingNotes = advisingNotes; }
 }
