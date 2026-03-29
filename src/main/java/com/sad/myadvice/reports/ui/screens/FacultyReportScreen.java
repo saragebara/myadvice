@@ -141,10 +141,46 @@ public class FacultyReportScreen {
 			refreshTable.run(); //add refresh table
         });
 
-        // Temporary placeholder until report generation is fully implemented
-        generateBtn.setOnAction(e ->
-                new Alert(Alert.AlertType.INFORMATION, "Faculty report generated.").show()
-        );
+        //csv report generator
+        generateBtn.setOnAction(e -> {
+            List<User> faculty = reportsService.filterFaculty(
+                facultyIdField.getText(),
+                nameField.getText()
+            );
+
+            if (faculty.isEmpty()) {
+                new Alert(Alert.AlertType.INFORMATION, "No faculty match the current filters.").show();
+                return;
+            }
+
+            StringBuilder csv = new StringBuilder();
+            csv.append("Faculty ID,Name,Department,Email,Appointments\n");
+            for (User f : faculty) {
+                csv.append(escape(f.getStudentId() != null ? f.getStudentId() : "N/A")).append(",")
+                .append(escape(f.getName())).append(",")
+                .append("Computer Science,")
+                .append(escape(f.getEmail())).append(",")
+                .append(reportsService.getAppointmentCountForFaculty(f)).append("\n");
+            }
+
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Save Faculty Report");
+            fileChooser.setInitialFileName("faculty_report.csv");
+            fileChooser.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter("CSV Files", "*.csv")
+            );
+            java.io.File file = fileChooser.showSaveDialog(view.getScene().getWindow());
+            if (file == null) return;
+
+            try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
+                writer.write(csv.toString());
+                new Alert(Alert.AlertType.INFORMATION,
+                    "Report saved to:\n" + file.getAbsolutePath()).show();
+            } catch (java.io.IOException ex) {
+                new Alert(Alert.AlertType.ERROR,
+                    "Failed to save report:\n" + ex.getMessage()).show();
+            }
+        });
 
         // Back button returns to the Reports Dashboard
         backBtn.setOnAction(e -> controller.showReportsDashboard());
@@ -163,5 +199,14 @@ public class FacultyReportScreen {
         Label l = new Label(text);
         l.setStyle(UITheme.STYLE_SECTION_LABEL);
         return l;
+    }
+
+    //csv escape helper
+    private String escape(String value) {
+        if (value == null) return "";
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
     }
 }

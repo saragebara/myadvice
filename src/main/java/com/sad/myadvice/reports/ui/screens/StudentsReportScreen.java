@@ -155,10 +155,49 @@ public class StudentsReportScreen {
             refreshTable.run(); //add refresh table
         });
 
-        // Temporary placeholder for generate report logic
-        generateBtn.setOnAction(e ->
-                new Alert(Alert.AlertType.INFORMATION, "Student report generated successfully.").show()
-        );
+        //csv file generator
+        generateBtn.setOnAction(e -> {
+                List<User> students = reportsService.filterStudents(
+                        studentIdField.getText(),
+                        nameField.getText(),
+                        programBox.getValue(),
+                        yearBox.getValue() );
+				//alert if students is empty
+                if (students.isEmpty()) {
+                        new Alert(Alert.AlertType.INFORMATION, "No students match the current filters.").show();
+                        return;
+                }
+
+                //building csv content from the current filtered results
+                StringBuilder csv = new StringBuilder();
+                csv.append("Student ID,Name,Program,Email\n");
+                for (User s : students) { //escape is a helper method found below
+                        csv.append(escape(s.getStudentId() != null ? s.getStudentId() : "N/A")).append(",")
+                        .append(escape(s.getName())).append(",")
+                        .append(escape(s.getMajor() != null ? s.getMajor().getFullName() : "N/A")).append(",")
+                        .append(escape(s.getEmail())).append("\n");
+                }
+                //prompting user to choose save location
+                javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+                fileChooser.setTitle("Save Students Report");
+                fileChooser.setInitialFileName("students_report.csv");
+                fileChooser.getExtensionFilters().add(
+                        new javafx.stage.FileChooser.ExtensionFilter("CSV Files", "*.csv")
+                );
+                java.io.File file = fileChooser.showSaveDialog(view.getScene().getWindow());
+                if (file == null) return; //if user cancelled
+
+				//writing to file and alerting the user that the report was saved
+                try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
+                        writer.write(csv.toString());
+                        new Alert(Alert.AlertType.INFORMATION,
+                        "Report saved to:\n" + file.getAbsolutePath()).show();
+                } catch (java.io.IOException ex) {
+					//if failed, alert user
+                        new Alert(Alert.AlertType.ERROR,
+                        "Failed to save report:\n" + ex.getMessage()).show();
+                }
+                });
 
         // Back button returns user to the Reports Dashboard
         backBtn.setOnAction(e -> controller.showReportsDashboard());
@@ -178,4 +217,13 @@ public class StudentsReportScreen {
         l.setStyle(UITheme.STYLE_SECTION_LABEL);
         return l;
     }
+    //helper for csv file
+    private String escape(String value) {
+        if (value == null) return "";
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+                return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
+    }
+
 }
