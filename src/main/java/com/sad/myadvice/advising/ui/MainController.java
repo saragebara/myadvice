@@ -4,6 +4,7 @@ import com.sad.myadvice.administering.ui.screens.*;
 import com.sad.myadvice.advising.ui.screens.*;
 import com.sad.myadvice.booking.ui.screens.*;
 import com.sad.myadvice.reports.ui.screens.*;
+import com.sad.myadvice.MyadviceApplication;
 import com.sad.myadvice.scheduling.ui.*;
 import com.sad.myadvice.entity.User;
 
@@ -260,6 +261,12 @@ public class MainController implements Initializable {
         contentArea.getChildren().clear();
         contentArea.getChildren().add(view);
     }
+
+    @FXML
+    private void handleLogout() {
+        MyadviceApplication.getInstance().showLogin();
+    }
+
     //nav button styling and action
     private Button navButton(String text, Runnable action) {
         Button b = new Button(text);

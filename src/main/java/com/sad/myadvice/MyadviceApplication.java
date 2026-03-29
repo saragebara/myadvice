@@ -18,6 +18,15 @@ public class MyadviceApplication extends Application {
 
     private ConfigurableApplicationContext springContext;
     private Stage primaryStage;
+    private static MyadviceApplication instance;
+
+    public MyadviceApplication() {
+        instance = this;
+    }
+
+    public static MyadviceApplication getInstance() {
+        return instance;
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -30,6 +39,7 @@ public class MyadviceApplication extends Application {
 
     @Override
     public void start(Stage stage) {
+        instance = this;
         this.primaryStage = stage;
         stage.setTitle("myAdvice");
         stage.setWidth(1000);
@@ -39,7 +49,7 @@ public class MyadviceApplication extends Application {
     }
 
     //LOGIN SCREEN ---------------------------------------------------------
-    private void showLogin() {
+    public void showLogin() {
         LoginScreen loginScreen = springContext.getBean(LoginScreen.class);
 
         loginScreen.setOnLoginSuccess(user -> showDashboard(user));
