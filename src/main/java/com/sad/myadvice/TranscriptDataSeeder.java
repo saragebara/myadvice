@@ -31,7 +31,7 @@ public class TranscriptDataSeeder implements CommandLineRunner {
         if (transcriptRepository.count() > 0) return; //if there's already transcript info then skip
 
         //get test student from DataSeeder
-        User student = userRepository.findByStudentId("110177359");
+        User student = userRepository.findByStudentId("110163845");
         if (student == null) { //if not found
             System.out.println("⚠ TranscriptDataSeeder: test student not found, skipping.");
             return;

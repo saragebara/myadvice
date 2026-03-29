@@ -42,8 +42,16 @@ myadvice/
   pom.xml            # Includes versions/dependencies/plugins
 ```
 
+## Launching the Application
+Download the .jar file in the Releases of this repository. Then, double click it in your file explorer.
+To test different screens for student, faculty, and staff, try these accounts:
+- **Student**: email: student@uwindsor.ca | pw: password
+- **Faculty**: email: faculty@uwindsor.ca | pw: password
+- **Staff**: email: staff@uwindsor.ca | pw: password
+Or, create a new account by signing up. 
 
-## Setup Guide
+
+## Setup Guide - LOCAL (GIT CLONE) INSTALLATION
 Before cloning, make sure you have the following prerequisites:
 - **Java 17** or higher (check with `java -version` in terminal)
 - **Git** (check with `git --version`)
