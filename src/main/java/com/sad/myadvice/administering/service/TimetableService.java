@@ -1,17 +1,17 @@
-package com.sad.myadvice.adminServices;
+package com.sad.myadvice.administering.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sad.myadvice.adminEntity.AdminCourse;
-import com.sad.myadvice.adminEntity.Instructor;
-import com.sad.myadvice.adminEntity.Room;
-import com.sad.myadvice.adminEntity.Section;
-import com.sad.myadvice.adminRepo.AdminCourseRepository;
-import com.sad.myadvice.adminRepo.InstructorRepository;
-import com.sad.myadvice.adminRepo.RoomRepository;
-import com.sad.myadvice.adminRepo.SectionRepository;
+import com.sad.myadvice.entity.AdminCourse;
+import com.sad.myadvice.entity.Instructor;
+import com.sad.myadvice.entity.Room;
+import com.sad.myadvice.entity.Section;
+import com.sad.myadvice.repository.AdminCourseRepository;
+import com.sad.myadvice.repository.InstructorRepository;
+import com.sad.myadvice.repository.RoomRepository;
+import com.sad.myadvice.repository.SectionRepository;
 
 @Service
 public class TimetableService {

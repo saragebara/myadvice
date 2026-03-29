@@ -1,11 +1,11 @@
-package com.sad.myadvice.adminServices;
+package com.sad.myadvice.administering.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sad.myadvice.adminEntity.AdminCourse;
-import com.sad.myadvice.adminRepo.AdminCourseRepository;
+import com.sad.myadvice.entity.AdminCourse;
+import com.sad.myadvice.repository.AdminCourseRepository;
 
 @Service
 public class CourseService {

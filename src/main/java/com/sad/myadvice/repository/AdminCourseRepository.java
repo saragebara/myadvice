@@ -1,9 +1,9 @@
-package com.sad.myadvice.adminRepo;
+package com.sad.myadvice.repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.sad.myadvice.adminEntity.AdminCourse;
+import com.sad.myadvice.entity.AdminCourse;
 
 public interface AdminCourseRepository extends JpaRepository<AdminCourse, Long> {
 }

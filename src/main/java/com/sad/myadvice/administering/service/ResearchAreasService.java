@@ -1,13 +1,13 @@
-package com.sad.myadvice.adminServices;
+package com.sad.myadvice.administering.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.sad.myadvice.adminEntity.ResearchAreas;
-import com.sad.myadvice.adminEntity.AdminUser;
-import com.sad.myadvice.adminRepo.AdminUserRepository;
-import com.sad.myadvice.adminRepo.ResearchRepository;
+import com.sad.myadvice.entity.ResearchAreas;
+import com.sad.myadvice.entity.AdminUser;
+import com.sad.myadvice.repository.AdminUserRepository;
+import com.sad.myadvice.repository.ResearchRepository;
 
 
 @Service

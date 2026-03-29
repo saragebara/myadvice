@@ -4,18 +4,18 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.sad.myadvice.adminEntity.AdminCourse;
-import com.sad.myadvice.adminEntity.Instructor;
-import com.sad.myadvice.adminEntity.Program;
-import com.sad.myadvice.adminEntity.Room;
-import com.sad.myadvice.adminEntity.Section;
-import com.sad.myadvice.adminRepo.AdminCourseRepository;
-import com.sad.myadvice.adminRepo.AdminUserRepository;
-import com.sad.myadvice.adminRepo.InstructorRepository;
-import com.sad.myadvice.adminRepo.ProgramRepository;
-import com.sad.myadvice.adminRepo.ResearchRepository;
-import com.sad.myadvice.adminRepo.RoomRepository;
-import com.sad.myadvice.adminRepo.SectionRepository;
+import com.sad.myadvice.entity.AdminCourse;
+import com.sad.myadvice.entity.Instructor;
+import com.sad.myadvice.entity.Program;
+import com.sad.myadvice.entity.Room;
+import com.sad.myadvice.entity.Section;
+import com.sad.myadvice.repository.AdminCourseRepository;
+import com.sad.myadvice.repository.AdminUserRepository;
+import com.sad.myadvice.repository.InstructorRepository;
+import com.sad.myadvice.repository.ProgramRepository;
+import com.sad.myadvice.repository.ResearchRepository;
+import com.sad.myadvice.repository.RoomRepository;
+import com.sad.myadvice.repository.SectionRepository;
 
 @Configuration
 public class TestDataLoader {

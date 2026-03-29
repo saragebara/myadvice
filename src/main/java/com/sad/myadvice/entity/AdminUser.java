@@ -1,4 +1,4 @@
-package com.sad.myadvice.adminEntity;
+package com.sad.myadvice.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
