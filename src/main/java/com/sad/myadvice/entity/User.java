@@ -20,7 +20,7 @@ public class User {
 
     private String password; //user's password for login
 
-    public enum Role { STUDENT, FACULTY, STAFF }
+    public enum Role { STUDENT, FACULTY, STAFF, ADMIN }
 
     @Enumerated(EnumType.STRING)
     private Major major;  // null for faculty/staff

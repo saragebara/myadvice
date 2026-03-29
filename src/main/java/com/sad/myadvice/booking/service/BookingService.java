@@ -6,6 +6,7 @@ import com.sad.myadvice.entity.User;
 import com.sad.myadvice.repository.AppointmentRepository;
 import com.sad.myadvice.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,23 +15,50 @@ public class BookingService {
 
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
+    private final AvailabilityService availabilityService;
 
     public BookingService(AppointmentRepository appointmentRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          AvailabilityService availabilityService) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
+        this.availabilityService = availabilityService;
     }
 
     //student booking an appointment
+    @Transactional
     public Appointment bookAppointment(User student, User faculty, LocalDateTime dateTime, Appointment.ReasonType reason, String note) {
-        Appointment appt = new Appointment();
-        appt.setStudent(student);
-        appt.setFaculty(faculty);
-        appt.setDateTime(dateTime);
-        appt.setReasonType(reason);
-        appt.setNote(note);
-        appt.setStatus(Appointment.Status.PENDING);
-        return appointmentRepository.save(appt);
+        if (student == null || faculty == null || dateTime == null || reason == null) {
+            throw new IllegalArgumentException("Invalid input parameters");
+        }
+
+        // Validate against faculty availability
+        boolean isAvailable = availabilityService.getAvailableSlotsForDate(faculty, dateTime.toLocalDate()).stream()
+            .anyMatch(slot -> slot.getStartTime().equals(dateTime.toLocalTime()));
+
+        if (!isAvailable) {
+            throw new IllegalArgumentException("Selected time is not available");
+        }
+
+        // Validate against faculty schedule
+        boolean isConflict = appointmentRepository.findByFaculty(faculty).stream()
+            .anyMatch(appt -> appt.getDateTime().equals(dateTime) && appt.getStatus() == Appointment.Status.CONFIRMED);
+
+        if (isConflict) {
+            throw new IllegalArgumentException("Selected time is not available");
+        }
+
+        // Proceed with booking
+        synchronized (faculty) {
+            Appointment appt = new Appointment();
+            appt.setStudent(student);
+            appt.setFaculty(faculty);
+            appt.setDateTime(dateTime);
+            appt.setReasonType(reason);
+            appt.setNote(note);
+            appt.setStatus(Appointment.Status.PENDING);
+            return appointmentRepository.save(appt);
+        }
     }
 
     //get all appointments for a student
