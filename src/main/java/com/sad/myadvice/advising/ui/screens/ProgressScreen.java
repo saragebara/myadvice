@@ -47,8 +47,8 @@ public class ProgressScreen {
         header.getChildren().add(headerText);
 
         // Completion card --------------------------------
-        List<Course> required = curriculumService.getRequiredCoursesForMajor(student);
-        double pct = transcriptService.getCompletionPercentage(student, required.size());
+        CurriculumService.ProgressBundle bundle = curriculumService.getProgressBundle(student);
+        double pct = bundle.completionPct;
 
         ProgressBar progressBar = new ProgressBar(pct / 100);
         progressBar.setPrefWidth(500);
@@ -64,7 +64,7 @@ public class ProgressScreen {
         progressCard.setPadding(new Insets(UITheme.CARD_PADDING));
 
         //Remaining required courses card --------------------------------------
-        List<Course> remaining = curriculumService.getRemainingRequiredCourses(student);
+        List<Course> remaining = bundle.remaining;
         ListView<String> remainingList = styledListView(220);
 
         if (remaining.isEmpty()) {

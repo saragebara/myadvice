@@ -1,5 +1,12 @@
 package com.sad.myadvice.advising.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
 import com.sad.myadvice.entity.Course;
 import com.sad.myadvice.entity.CourseProgram;
 import com.sad.myadvice.entity.Prerequisite;
@@ -7,9 +14,6 @@ import com.sad.myadvice.entity.User;
 import com.sad.myadvice.repository.CourseProgramRepository;
 import com.sad.myadvice.repository.CourseRepository;
 import com.sad.myadvice.repository.PrerequisiteRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Set;
 
 @Service
 public class CurriculumService {
@@ -140,6 +144,148 @@ public class CurriculumService {
         return getEligibleCourses(student).stream()
             .filter(c -> !required.contains(c))  // strictly exclude ALL required courses
             .toList();
+    }
+
+    //isEligible using a prefetched snapshot to avoid extra queries to DB
+    public boolean isEligible(Course course, TranscriptService.TranscriptSnapshot snap, List<Prerequisite> prereqs) {
+        for (Prerequisite prereq : prereqs) {
+            Course required = prereq.getRequiredCourse();
+            switch (prereq.getType()) {
+                case PRE -> { if (!snap.isCompleted(required)) return false; }
+                case CO -> { if (!snap.isCompletedOrInProgress(required)) return false; }
+                case ANTI -> { if (snap.isCompletedOrInProgress(required)) return false; }
+            }
+        }
+        return true;
+    }
+
+    //building the EligibleScreen in 3 queries total instead of the previous 100+ possibility
+    //now uses 1. courseProgramRepository.findByMajor
+    //2. transcriptRepository.findByStudent (snapshotted)
+    //3. prerequisiteRepository.findAll (one bulk load)
+    public EligibleBundle getEligibleBundle(User student) {
+        List<Course> required = getRequiredCoursesForMajor(student); //query 1
+        Set<Long> requiredIds = required.stream().map(Course::getId).collect(java.util.stream.Collectors.toSet());
+
+        TranscriptService.TranscriptSnapshot snap = transcriptService.getSnapshot(student); //query 2
+
+        //bulk-load ALL prerequisites once. query 3
+        List<Prerequisite> allPrereqs = prerequisiteRepository.findAll();
+        Map<Long, List<Prerequisite>> prereqsByCourseId = allPrereqs.stream()
+            .collect(java.util.stream.Collectors.groupingBy(p -> p.getCourse().getId()));
+
+        List<Course> allCourses = courseRepository.findAll();
+
+        List<Course> eligibleRequired  = new ArrayList<>();
+        List<Course> eligibleElectives = new ArrayList<>();
+
+        for (Course c : allCourses) {
+            if (snap.isCompleted(c) || snap.isInProgress(c)) continue;
+            List<Prerequisite> prereqs = prereqsByCourseId.getOrDefault(c.getId(), List.of());
+            if (!isEligible(c, snap, prereqs)) continue;
+
+            if (requiredIds.contains(c.getId())) eligibleRequired.add(c);
+            else eligibleElectives.add(c);
+        }
+
+        return new EligibleBundle(eligibleRequired, eligibleElectives);
+    }
+
+    //value object returned by getEligibleBundle
+    public static class EligibleBundle {
+        public final List<Course> eligibleRequired;
+        public final List<Course> eligibleElectives;
+        public EligibleBundle(List<Course> req, List<Course> elec) {
+            this.eligibleRequired  = req;
+            this.eligibleElectives = elec;
+        }
+    }
+
+    //builds everything that progress screen needs
+    //1.courseProgramRepository.findByMajor
+    //2.transcriptRepository.findByStudent (via snapshot)
+    //remaining + pct computed in memory
+    public ProgressBundle getProgressBundle(User student) {
+        List<Course> required = getRequiredCoursesForMajor(student);//query 1
+        Set<Long> requiredIds = required.stream().map(Course::getId).collect(java.util.stream.Collectors.toSet());
+
+        TranscriptService.TranscriptSnapshot snap = transcriptService.getSnapshot(student); //query 2
+
+        List<Course> remaining = required.stream().filter(c -> !snap.isCompleted(c)).toList(); //pure in-memory
+
+        long completedRequiredCount = requiredIds.stream()
+            .filter(snap.completedIds::contains)
+            .count();
+        double pct = required.isEmpty() ? 0.0 : (completedRequiredCount * 100.0 / required.size());
+
+        int completedCount  = (int) snap.completedIds.size();
+        int inProgressCount = (int) snap.inProgressIds.size();
+        return new ProgressBundle(remaining, pct, completedCount, inProgressCount);
+    }
+
+    //finally bundling it
+    public static class ProgressBundle {
+        public final List<Course> remaining;
+        public final double completionPct;
+        public final int completedCount;
+        public final int inProgressCount;
+        
+        public ProgressBundle(List<Course> remaining, double completionPct, int completedCount, int inProgressCount) {
+            this.remaining = remaining;
+            this.completionPct = completionPct;
+            this.completedCount = completedCount;
+            this.inProgressCount = inProgressCount;
+        }
+    }
+
+    //returns the set of course IDs required for the student's major in ONE query
+    public Set<Long> getRequiredCourseIdsForMajor(User student) {
+        return getRequiredCoursesForMajor(student).stream()
+            .map(Course::getId)
+            .collect(java.util.stream.Collectors.toSet());
+    }
+
+
+    //loads all data needed for populateDetailsPanel in 3 queries total:
+    //1. courseProgramRepository.findByMajor (via getRequiredCoursesForMajor)
+    //2. prerequisiteRepository.findByCourse (prereqs for this one selected course)
+    //3. transcriptRepository.findByStudent(via snapshot)
+    //isEligible and isRequiredForMajor are then computed in memory
+    public CourseDetailBundle getCourseDetailBundle(User student, Course course, Set<Long> requiredIds) {
+        //prereqs for this course
+        List<Prerequisite> prereqs = prerequisiteRepository.findByCourse(course);
+        //transcript snapshot
+        TranscriptService.TranscriptSnapshot snap = transcriptService.getSnapshot(student);
+        //isRequiredForMajor, in memory using passed-in set
+        boolean requiredForMajor = requiredIds.contains(course.getId());
+        //getRecommendedYear: in memory: re-use already-loaded program list
+        int recommendedYear = course.getYearLevel(); //default
+        //isEligible: in memory using snapshot
+        boolean eligible = true;
+        for (Prerequisite prereq : prereqs) {
+            Course req = prereq.getRequiredCourse();
+            eligible = switch (prereq.getType()) {
+                case PRE-> snap.isCompleted(req);
+                case CO -> snap.isCompletedOrInProgress(req);
+                case ANTI -> !snap.isCompletedOrInProgress(req);
+            };
+            if (!eligible) break;
+        }
+        return new CourseDetailBundle(requiredForMajor, recommendedYear, eligible, prereqs);
+    }
+
+    public static class CourseDetailBundle {
+        public final boolean requiredForMajor;
+        public final int     recommendedYear;
+        public final boolean eligible;
+        public final List<Prerequisite> prereqs;
+        public CourseDetailBundle(boolean requiredForMajor, int recommendedYear,
+                                boolean eligible, List<Prerequisite> prereqs) {
+            this.requiredForMajor = requiredForMajor;
+            this.recommendedYear  = recommendedYear;
+            this.eligible         = eligible;
+            this.prereqs          = prereqs;
+        }
     }
 }
 

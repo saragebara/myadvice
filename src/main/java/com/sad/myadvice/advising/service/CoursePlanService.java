@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 public class CoursePlanService {
@@ -155,6 +156,10 @@ public class CoursePlanService {
 
     public List<String> getValidationMessages(CoursePlan plan) {
         List<String> errors = new ArrayList<>();
+        List<Prerequisite> allPrereqs = prerequisiteRepository.findAll();
+        Map<Long, List<Prerequisite>> prereqMap = allPrereqs.stream()
+            .collect(Collectors.groupingBy(p -> p.getCourse().getId()));
+
 
         if (plan == null) {
             errors.add("Course plan is missing.");
@@ -218,7 +223,7 @@ public class CoursePlanService {
             }
 
             //prereq ordering check
-            List<Prerequisite> prerequisites = prerequisiteRepository.findByCourse(course);
+            List<Prerequisite> prerequisites = prereqMap.getOrDefault(course.getId(), List.of()); //zero queries
             for (Prerequisite prereq : prerequisites) {
                 Course requiredCourse = prereq.getRequiredCourse();
                 if (requiredCourse == null) continue;

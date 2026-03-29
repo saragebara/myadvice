@@ -7,6 +7,7 @@ import com.sad.myadvice.repository.CourseProgramRepository;
 import com.sad.myadvice.repository.TranscriptRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
 
 @Service //tells Spring that this is a service class to manage automatically
 public class TranscriptService {
@@ -76,5 +77,31 @@ public class TranscriptService {
         return courseProgramRepository.findByMajor(student.getMajor()).stream()
             .map(cp -> cp.getCourse())
             .anyMatch(requiredCourse -> requiredCourse.getId() != null && requiredCourse.getId().equals(course.getId()));
+    }
+
+    //transcript snapshot to avoid long DB queries and just load it once
+    public TranscriptSnapshot getSnapshot(User student) {
+        List<Transcript> all = transcriptRepository.findByStudent(student);
+        Set<Long> completed = new java.util.HashSet<>();
+        Set<Long> inProgress = new java.util.HashSet<>();
+        for (Transcript t : all) {
+            if (t.getCourse() == null) continue;
+            if (t.getStatus() == Transcript.Status.COMPLETED)  completed.add(t.getCourse().getId());
+            if (t.getStatus() == Transcript.Status.IN_PROGRESS) inProgress.add(t.getCourse().getId());
+        }
+        return new TranscriptSnapshot(completed, inProgress);
+    }
+
+    //lightweight transcript snapshot object 
+    public static class TranscriptSnapshot {
+        public final Set<Long> completedIds;
+        public final Set<Long> inProgressIds;
+        public TranscriptSnapshot(Set<Long> completedIds, Set<Long> inProgressIds) {
+            this.completedIds  = completedIds;
+            this.inProgressIds = inProgressIds;
+        }
+        public boolean isCompleted(Course c){ return c != null && completedIds.contains(c.getId()); }
+        public boolean isInProgress(Course c){ return c != null && inProgressIds.contains(c.getId()); }
+        public boolean isCompletedOrInProgress(Course c) {  return isCompleted(c) || isInProgress(c);}
     }
 }

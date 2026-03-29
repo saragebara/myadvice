@@ -22,6 +22,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import java.util.Set;
 
 @Component
 public class CourseDetailsScreen {
@@ -42,25 +43,25 @@ public class CourseDetailsScreen {
         view.setStyle(UITheme.STYLE_CONTENT_AREA);
         view.getChildren().add(pageTitle("Course Details"));
 
-        //Search bar -------------------------------------
+        //Search field
         TextField searchField = styledTextField("Search by course code or name...");
         searchField.setPrefWidth(320);
         Button searchBtn = primaryButton("Search");
         Button resetBtn = secondaryButton("Reset");
-        //adding everything to a horiziontal bar
         HBox searchBar = new HBox(10, searchField, searchBtn, resetBtn);
         searchBar.setAlignment(Pos.CENTER_LEFT);
 
-        //Results list -----------------
         ListView<String> resultsList = styledListView(150);
         final List<Course>[] lastResults = new List[]{List.of()};
 
-        //Details panel
+        //cache the major's required course IDs. loaded ONCE on first search, reused for all tagging
+        final Set<Long>[] requiredIds = new Set[]{null};
+
         VBox detailsPanel = new VBox(10);
         detailsPanel.setStyle(UITheme.STYLE_DETAILS_PANEL);
         detailsPanel.getChildren().add(bodyLabel("Select a course from the search results to see details."));
 
-        //Search button action
+        //on search action
         searchBtn.setOnAction(e -> {
             String query = searchField.getText().trim();
             resultsList.getItems().clear();
@@ -71,15 +72,19 @@ public class CourseDetailsScreen {
                 return;
             }
 
-            List<Course> results = courseService.searchCourses(query);
+            //load major's required IDs ONCE per session (or once per search if null)
+            if (requiredIds[0] == null) {
+                requiredIds[0] = curriculumService.getRequiredCourseIdsForMajor(student);
+            }
+
+            List<Course> results = courseService.searchCourses(query); // ONE query
             lastResults[0] = results;
 
             if (results.isEmpty()) {
                 resultsList.getItems().add("No courses found.");
             } else {
                 for (Course c : results) {
-                    //fixed: use isReqForMajor instead of global requiremnet flag
-                    boolean reqForMajor = curriculumService.isRequiredForMajor(student, c);
+                    boolean reqForMajor = requiredIds[0].contains(c.getId());
                     String reqTag = reqForMajor ? " [Required]" : " [Elective]";
                     resultsList.getItems().add(
                         c.getCode() + "  —  " + c.getName() + "  (" + c.getCredits() + " cr)" + reqTag
@@ -87,10 +92,9 @@ public class CourseDetailsScreen {
                 }
             }
         });
-        //allow enter key to search
+
         searchField.setOnAction(e -> searchBtn.fire());
 
-        //reset button action
         resetBtn.setOnAction(e -> {
             searchField.clear();
             resultsList.getItems().clear();
@@ -103,18 +107,16 @@ public class CourseDetailsScreen {
         resultsList.setOnMouseClicked(e -> {
             int idx = resultsList.getSelectionModel().getSelectedIndex();
             if (idx < 0 || idx >= lastResults[0].size()) return;
-
             Course selected = lastResults[0].get(idx);
-            populateDetailsPanel(detailsPanel, selected, student);
+            //pass the cached requiredIds so the bundle doesn't re-query the major
+            populateDetailsPanel(detailsPanel, selected, student,
+                                requiredIds[0] != null ? requiredIds[0] : Set.of());
         });
 
         VBox searchCard = new VBox(10,
-            goldBar(),
-            sectionLabel("Search Courses"),
-            searchBar,
-            resultsList,
-            sectionLabel("Course Details"),
-            detailsPanel
+            goldBar(), sectionLabel("Search Courses"),
+            searchBar, resultsList,
+            sectionLabel("Course Details"), detailsPanel
         );
         searchCard.setStyle(UITheme.STYLE_CARD);
         searchCard.setPadding(new Insets(UITheme.CARD_PADDING));
@@ -123,48 +125,34 @@ public class CourseDetailsScreen {
         return view;
     }
 
-    private void populateDetailsPanel(VBox panel, Course selected, User student) {
+    private void populateDetailsPanel(VBox panel, Course selected, User student, Set<Long> requiredIds) {
         panel.getChildren().clear();
 
-        //check if required for user's major
-        boolean requiredForMajor = curriculumService.isRequiredForMajor(student, selected);
-        String requiredStr = requiredForMajor
-            ? "Yes (required for your major)"
-            : "No (elective for your major)";
+        //one bundle call = 2 queries (prereqs + transcript snapshot), everything else in memory
+        CurriculumService.CourseDetailBundle bundle =
+            curriculumService.getCourseDetailBundle(student, selected, requiredIds);
 
-        //recommended year for the course
-        int recommendedYear = curriculumService.getRecommendedYear(student, selected);
+        String requiredStr = bundle.requiredForMajor
+            ? "Yes (required for your major)" : "No (elective for your major)";
 
-        //eligibility for a course
-        boolean eligible = curriculumService.isEligible(student, selected);
-        String eligibleStr = eligible ? "✓ Yes" : "✗ No — prerequisites not met";
-        String eligibleColor = eligible ? "#2E7D32" : "#C62828";
-        Label eligibleLabel = new Label("Eligible to take: " + eligibleStr);
+        String eligibleStr   = bundle.eligible ? "✓ Yes" : "✗ No — prerequisites not met";
+        String eligibleColor = bundle.eligible ? "#2E7D32" : "#C62828";
+        Label eligibleLabel  = new Label("Eligible to take: " + eligibleStr);
         eligibleLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: " + eligibleColor + ";");
 
-        //term availability
         List<String> terms = new java.util.ArrayList<>();
         if (selected.isOfferedFall())   terms.add("Fall");
         if (selected.isOfferedWinter()) terms.add("Winter");
         if (selected.isOfferedSummer()) terms.add("Summer");
         String termsStr = terms.isEmpty() ? "Not specified" : String.join(", ", terms);
 
-        //prereqs from DB
-        List<Prerequisite> prereqs = prerequisiteRepository.findByCourse(selected);
-        String prereqStr;
-        if (prereqs.isEmpty()) {
-            prereqStr = "None";
-        } else {
-            prereqStr = prereqs.stream()
-                .map(p -> p.getRequiredCourse().getCode() + " (" + p.getType() + ")")
-                .reduce((a, b) -> a + ", " + b)
-                .orElse("None");
-        }
+        //use prereqs already loaded in the bundle
+        String prereqStr = bundle.prereqs.isEmpty() ? "None" : bundle.prereqs.stream()
+            .map(p -> p.getRequiredCourse().getCode() + " (" + p.getType() + ")")
+            .collect(java.util.stream.Collectors.joining(", "));
 
-        //added course description information
         String description = (selected.getDescription() != null && !selected.getDescription().isBlank())
-            ? selected.getDescription()
-            : "No description available.";
+            ? selected.getDescription() : "No description available.";
         Label descLabel = new Label(description);
         descLabel.setWrapText(true);
         descLabel.setStyle(UITheme.STYLE_BODY_LABEL);
@@ -174,7 +162,7 @@ public class CourseDetailsScreen {
             boldLabel(selected.getCode() + "  —  " + selected.getName()),
             bodyLabel("Credits: " + selected.getCredits()),
             bodyLabel("Year Level: " + selected.getYearLevel()),
-            bodyLabel("Required for your major: " + (requiredForMajor ? "Yes" : "No")),
+            bodyLabel("Required for your major: " + (bundle.requiredForMajor ? "Yes" : "No")),
             bodyLabel("Category: " + (selected.getCategory() != null
                     ? selected.getCategory().toString() : "N/A")),
             bodyLabel("Offered: " + termsStr),
@@ -187,7 +175,7 @@ public class CourseDetailsScreen {
     }
 
     //Helpers ----------------------------------
-   private Region goldBar() {
+    private Region goldBar() {
         Region bar = new Region();
         bar.setStyle(UITheme.STYLE_GOLD_BAR);
         bar.setMaxWidth(Double.MAX_VALUE);
