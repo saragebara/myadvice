@@ -3,6 +3,7 @@ package com.sad.myadvice.advising.service;
 import com.sad.myadvice.entity.Course;
 import com.sad.myadvice.repository.CourseRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service //tells Spring that this is a service class to manage automatically
@@ -40,11 +41,39 @@ public class CourseService {
 
     //Get a course from a keyword, either found in its name or its course code
     public List<Course> searchCourses(String keyword) {
-        //findAll() gets all the courses from the DB as a list
-        //stream() converts the list into a stream that can be filtered
-        //filter(c->) keeps only the courses c where the condition is true, either the name or the code contains keyword
-        return courseRepository.findAll().stream().filter(c -> c.getName().toLowerCase().contains(keyword.toLowerCase())
-            || c.getCode().toLowerCase().contains(keyword.toLowerCase()))
-            .toList(); //toList() converts it back to a list
+        if (keyword == null || keyword.isBlank()) {
+            return courseRepository.findAll();
+        }
+        String query = keyword.trim().toLowerCase();
+        return courseRepository.findAll().stream()
+            .filter(c -> c.getName() != null && c.getName().toLowerCase().contains(query)
+                || c.getCode() != null && c.getCode().toLowerCase().contains(query)
+                || c.getDescription() != null && c.getDescription().toLowerCase().contains(query))
+            .toList();
+    }
+
+    public List<Course> searchCourses(String keyword, Integer yearLevel, Boolean required, String offeredTerm) {
+        String query = keyword == null ? "" : keyword.trim().toLowerCase();
+        return courseRepository.findAll().stream()
+            .filter(c -> query.isBlank() || (
+                (c.getName() != null && c.getName().toLowerCase().contains(query))
+                || (c.getCode() != null && c.getCode().toLowerCase().contains(query))
+                || (c.getDescription() != null && c.getDescription().toLowerCase().contains(query))
+            ))
+            .filter(c -> yearLevel == null || c.getYearLevel() == yearLevel)
+            .filter(c -> required == null || c.isRequired() == required)
+            .filter(c -> {
+                if (offeredTerm == null || offeredTerm.isBlank()) {
+                    return true;
+                }
+                String term = offeredTerm.trim().toLowerCase();
+                return switch (term) {
+                    case "fall" -> c.isOfferedFall();
+                    case "winter" -> c.isOfferedWinter();
+                    case "summer" -> c.isOfferedSummer();
+                    default -> true;
+                };
+            })
+            .toList();
     }
 }
