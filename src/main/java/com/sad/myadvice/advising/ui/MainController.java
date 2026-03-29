@@ -127,7 +127,8 @@ public class MainController implements Initializable {
             navButton("✅  Eligible Courses", this::showEligible),
             navButton("🔍  Course Details", this::showCourseDetails),
             navButton("📋  My Plans", this::showPlans),
-            navButton("📅  Book Appointment", this::showBooking),
+            navButton("📅  Scheduling", this::showSchedulling),
+            navButton("⌚  Book Appointment", this::showBooking),
             navButton("📊  Reports", this::showReportsDashboard)
         );
     }
