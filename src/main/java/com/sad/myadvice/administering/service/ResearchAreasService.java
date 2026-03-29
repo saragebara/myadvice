@@ -15,24 +15,21 @@ public class ResearchAreasService {
     private final  ResearchRepository  ResearchRepository;
     private final AdminUserRepository userRepository; // for linking research areas to users
 
-    // Constructor injection
     public ResearchAreasService( ResearchRepository  ResearchRepository, AdminUserRepository userRepository) {
         this. ResearchRepository =  ResearchRepository;
         this.userRepository = userRepository;
     }
 
-    // Get all research areas
+    //get all research areas
     public List<ResearchAreas> getAllResearchAreas() {
         return  ResearchRepository.findAll();
     }
-
-    // Get research area by id
     public ResearchAreas getResearchAreaById(Long id) {
         return  ResearchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Research area not found"));
     }
 
-    // Create research area for a user
+    //create research area for a user
     public ResearchAreas createResearchArea(Long userId, ResearchAreas researchArea) {
         AdminUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -40,7 +37,7 @@ public class ResearchAreasService {
         return  ResearchRepository.save(researchArea);
     }
 
-    // Update research area
+    // update research area
     public ResearchAreas updateResearchArea(Long id, ResearchAreas updatedResearchArea) {
         ResearchAreas existing = getResearchAreaById(id);
         existing.setResearchArea(updatedResearchArea.getResearchArea());
@@ -48,13 +45,13 @@ public class ResearchAreasService {
         return  ResearchRepository.save(existing);
     }
 
-    // Delete research area
+    //delete research area
     public void deleteResearchArea(Long id) {
         ResearchAreas researchArea = getResearchAreaById(id);
          ResearchRepository.delete(researchArea);
     }
 
-    // Get all research areas for a user
+    //get research areas for a user
     public List<ResearchAreas> getResearchAreasByUser(Long userId) {
         AdminUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

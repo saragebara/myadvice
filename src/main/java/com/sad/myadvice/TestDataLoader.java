@@ -1,3 +1,4 @@
+/*
 package com.sad.myadvice;
 
 import org.springframework.boot.CommandLineRunner;
@@ -74,3 +75,4 @@ public class TestDataLoader {
         };
     }
 }
+*/

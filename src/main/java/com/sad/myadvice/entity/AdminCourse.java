@@ -3,6 +3,7 @@ package com.sad.myadvice.entity;
 import java.util.List;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -10,8 +11,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "course")
 public class AdminCourse {
     @Id //primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) //Auto-increments id every time new user is added
@@ -26,7 +29,7 @@ public class AdminCourse {
 
     //many to many relationship with itself to represent prerequisites
     //(many courses can have many prerequisites, and a course can be a prerequisite for many courses)
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "course_prerequisites",
         joinColumns = @JoinColumn(name = "course_id"),

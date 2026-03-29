@@ -11,23 +11,21 @@ import com.sad.myadvice.repository.AdminCourseRepository;
 public class CourseService {
     private final AdminCourseRepository courseRepository;
 
-    // Constructor Injection
     public CourseService(AdminCourseRepository courseRepository) {
         this.courseRepository = courseRepository;
     }
 
-    // Get all courses, and id
+    //get all courses, and id
     public List<AdminCourse> getAllCourses() {
         return courseRepository.findAll();
     }
-
     public AdminCourse getCourseById(Long id) {
         return courseRepository
             .findById(id)
             .orElseThrow(() -> new RuntimeException("Course not found"));
     }
 
-    // create / update / delete course
+    //create / update / delete course
     public AdminCourse createCourse(AdminCourse course) {
         return courseRepository.save(course);
     }
@@ -39,7 +37,7 @@ public class CourseService {
         return courseRepository.save(existing);
     }
 
-    // delete course by id
+    //delete course by id
     public void deleteCourse(Long id) {
         AdminCourse course = getCourseById(id);
         courseRepository.delete(course);
@@ -49,7 +47,7 @@ public class CourseService {
     public AdminCourse addPrerequisite(Long courseId, Long prereqId) {
         AdminCourse course = getCourseById(courseId);
         AdminCourse prereq = getCourseById(prereqId);
-        // Cannot be its own prerequisite
+        //cant be its own prerequisite
         if (courseId.equals(prereqId)) {
             throw new RuntimeException( "Course cannot be its own prerequisite");
         }
@@ -59,9 +57,9 @@ public class CourseService {
 
     // remove prerequisite from course
     public AdminCourse removePrerequisite(Long courseId, Long prereqId) {
-        AdminCourse course = getCourseById(courseId);
-        AdminCourse prereq = getCourseById(prereqId);
-        course.getPrerequisites().remove(prereq);
-        return courseRepository.save(course);
-    }
+    AdminCourse course = getCourseById(courseId);
+    course.getPrerequisites().removeIf(p -> p.getId().equals(prereqId));
+
+    return courseRepository.save(course);
+}
 }

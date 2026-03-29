@@ -2,6 +2,7 @@ package com.sad.myadvice.administering.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sad.myadvice.entity.AdminCourse;
@@ -16,7 +17,12 @@ import com.sad.myadvice.repository.SectionRepository;
 @Service
 public class TimetableService {
     private final SectionRepository sectionRepository;
-    private final AdminCourseRepository courseRepository;
+    @Autowired
+    private AdminCourseRepository courseRepository;
+
+    public AdminCourse updateCourse(AdminCourse course) {
+        return courseRepository.save(course);
+    }
     private final InstructorRepository instructorRepository;
     private final RoomRepository roomRepository;
 
@@ -28,18 +34,16 @@ public class TimetableService {
         this.roomRepository = roomRepository;
     }
 
-    // Get all sections
+    //get sections
     public List<Section> getAllSections() {
         return sectionRepository.findAll();
     }
-
-    // Get section by id
     public Section getSectionById(Long id) {
         return sectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Section not found"));
     }
 
-    // Create a section
+    //create section
     public Section createSection(Long courseId, Long instructorId, Long roomId, Section sectionDetails) {
         AdminCourse course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
@@ -47,7 +51,6 @@ public class TimetableService {
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
-
         sectionDetails.setCourse(course);
         sectionDetails.setInstructor(instructor);
         sectionDetails.setRoom(room);
@@ -55,40 +58,47 @@ public class TimetableService {
         return sectionRepository.save(sectionDetails);
     }
 
-    // Update section
+    //update section
     public Section updateSection(Long id, Section updatedSection) {
-        Section existing = getSectionById(id);
+        Section existing = sectionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Section not found"));
+        existing.setCourse(updatedSection.getCourse());
+        existing.setInstructor(updatedSection.getInstructor());
+        existing.setRoom(updatedSection.getRoom());
         existing.setSectionNumber(updatedSection.getSectionNumber());
         existing.setDay(updatedSection.getDay());
         existing.setTime(updatedSection.getTime());
-        // Optionally update course, instructor, room if needed
+
         return sectionRepository.save(existing);
     }
 
-    // Delete section
+    //delete
     public void deleteSection(Long id) {
         Section section = getSectionById(id);
         sectionRepository.delete(section);
     }
 
-    // Get sections by course
+    //get sections by course, instructor, room
     public List<Section> getSectionsByCourse(Long courseId) {
         AdminCourse course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         return sectionRepository.findByCourse(course);
     }
-
-    // Get sections by instructor
     public List<Section> getSectionsByInstructor(Long instructorId) {
         Instructor instructor = instructorRepository.findById(instructorId)
                 .orElseThrow(() -> new RuntimeException("Instructor not found"));
         return sectionRepository.findByInstructor(instructor);
     }
-
-    // Get sections by room
     public List<Section> getSectionsByRoom(Long roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
         return sectionRepository.findByRoom(room);
+    }
+
+    public List<Instructor> getAllInstructors() {
+    return instructorRepository.findAll();
+}
+    public List<Room> getAllRooms() {
+        return roomRepository.findAll();
     }
 }
