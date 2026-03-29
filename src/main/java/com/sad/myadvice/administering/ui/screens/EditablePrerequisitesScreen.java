@@ -9,7 +9,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-//import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +24,6 @@ public class EditablePrerequisitesScreen {
         this.adminCourseService = adminCourseService;
     }
 
-    // Returns VBox to fit inside MainController's contentArea like all other screens
     public VBox build() {
         VBox view = new VBox(UITheme.SPACING);
         view.setStyle(UITheme.STYLE_CONTENT_AREA);
@@ -33,13 +31,21 @@ public class EditablePrerequisitesScreen {
         Label title = new Label("Edit Course Prerequisites");
         title.setStyle(UITheme.STYLE_PAGE_TITLE);
 
-        // Course table
+        //query 1 for all courses
+        List<Course> allCoursesList = adminCourseService.getAllCourses();
+
+        //query 2 all prerequisites
+        Map<Long, List<Prerequisite>> prereqMap = adminCourseService.getAllPrerequisites()
+            .stream()
+            .collect(Collectors.groupingBy(p -> p.getCourse().getId()));
+
+        //ObservableList backed by the already-loaded list, got rid of extra query
+        ObservableList<Course> courses = FXCollections.observableArrayList(allCoursesList);
+
+        //Table -----
         TableView<Course> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         table.setPrefHeight(280);
-
-        ObservableList<Course> courses =
-            FXCollections.observableArrayList(adminCourseService.getAllCourses());
         table.setItems(courses);
 
         TableColumn<Course, String> codeCol = new TableColumn<>("Course Code");
@@ -52,8 +58,9 @@ public class EditablePrerequisitesScreen {
 
         TableColumn<Course, String> prereqCol = new TableColumn<>("Current Prerequisites");
         prereqCol.setCellValueFactory(cd -> {
+            //in-memory lookup = zero DB calls per row
             List<Prerequisite> prereqs =
-                adminCourseService.getPrerequisitesForCourse(cd.getValue().getId());
+                prereqMap.getOrDefault(cd.getValue().getId(), List.of());
             String text = prereqs.isEmpty() ? "None" : prereqs.stream()
                 .map(p -> p.getRequiredCourse().getCode() + " (" + p.getType() + ")")
                 .collect(Collectors.joining(", "));
@@ -62,28 +69,16 @@ public class EditablePrerequisitesScreen {
 
         table.getColumns().addAll(codeCol, nameCol, prereqCol);
 
-        // Edit panel — shown inline below the table when a course is selected
+        //Edit panel --------
         VBox editPanel = new VBox(UITheme.SPACING);
         editPanel.setStyle(UITheme.STYLE_DETAILS_PANEL);
         editPanel.getChildren().add(bodyLabel("Select a course above to edit its prerequisites."));
 
+        //pass the shared prereqMap and allCoursesList down to avoid requerying inside
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
             if (selected == null) return;
-            buildEditPanel(editPanel, selected, table, courses);
+            buildEditPanel(editPanel, selected, table, courses, allCoursesList, prereqMap);
         });
-
-        // Button editBtn = primaryButton("Edit Selected Course");
-        // editBtn.setOnAction(e -> {
-        //     Course selected = table.getSelectionModel().getSelectedItem();
-        //     if (selected == null) {
-        //         new Alert(AlertType.WARNING, "Please select a course first.").showAndWait();
-        //         return;
-        //     }
-        //     buildEditPanel(editPanel, selected, table, courses);
-        // });
-
-        // HBox buttonBar = new HBox(UITheme.SPACING, editBtn);
-        // buttonBar.setAlignment(Pos.CENTER_LEFT);
 
         VBox tableCard = new VBox(10, goldBar(), sectionLabel("Courses"), table);
         tableCard.setStyle(UITheme.STYLE_CARD);
@@ -99,26 +94,27 @@ public class EditablePrerequisitesScreen {
 
     private void buildEditPanel(VBox panel, Course selectedCourse,
                                  TableView<Course> table,
-                                 ObservableList<Course> courses) {
+                                 ObservableList<Course> courses,
+                                 List<Course> allCoursesList,
+                                 Map<Long, List<Prerequisite>> prereqMap) {
         panel.getChildren().clear();
+        panel.getChildren().add(boldLabel("Editing: " + selectedCourse.getCode() + " — " + selectedCourse.getName()));
 
-        panel.getChildren().add(boldLabel(
-            "Editing: " + selectedCourse.getCode() + " — " + selectedCourse.getName()));
-
+        //no more DB call, replaced w in-memory data
         List<Prerequisite> existingPrereqs =
-            adminCourseService.getPrerequisitesForCourse(selectedCourse.getId());
+            prereqMap.getOrDefault(selectedCourse.getId(), List.of());
         Map<Long, Long> existingByTargetId = new HashMap<>();
         for (Prerequisite p : existingPrereqs) {
             existingByTargetId.put(p.getRequiredCourse().getId(), p.getId());
         }
 
-        List<Course> allCourses = adminCourseService.getAllCourses();
         VBox checkboxContainer = new VBox(6);
         List<CheckBox> checkBoxes = new ArrayList<>();
         List<ComboBox<Prerequisite.Type>> typeBoxes = new ArrayList<>();
         List<Course> candidateCourses = new ArrayList<>();
 
-        for (Course course : allCourses) {
+        //uses the already-loaded allCoursesList now
+        for (Course course : allCoursesList) {
             if (course.getId().equals(selectedCourse.getId())) continue;
 
             CheckBox cb = new CheckBox(course.getCode() + " — " + course.getName());
@@ -152,7 +148,6 @@ public class EditablePrerequisitesScreen {
         scrollPane.setPrefHeight(200);
 
         Label statusLabel = bodyLabel("");
-
         Button saveBtn = primaryButton("Save Changes");
         Button cancelBtn = secondaryButton("Cancel");
 
@@ -167,13 +162,21 @@ public class EditablePrerequisitesScreen {
                     if (!isChecked && wasExisting) {
                         adminCourseService.removePrerequisite(
                             existingByTargetId.get(candidate.getId()));
+                        //update in-memory map to reflect deletion
+                        prereqMap.getOrDefault(selectedCourse.getId(), new ArrayList<>())
+                            .removeIf(p -> p.getId().equals(existingByTargetId.get(candidate.getId())));
+                        existingByTargetId.remove(candidate.getId());
                     } else if (isChecked && !wasExisting) {
-                        adminCourseService.addPrerequisite(
+                        Prerequisite saved = adminCourseService.addPrerequisite(
                             selectedCourse.getId(), candidate.getId(), type);
+                        //update in-memory map to reflect addition
+                        prereqMap.computeIfAbsent(selectedCourse.getId(), k -> new ArrayList<>())
+                            .add(saved);
+                        existingByTargetId.put(candidate.getId(), saved.getId());
                     }
                 }
-                // Refresh table
-                courses.setAll(adminCourseService.getAllCourses());
+
+                //refresh table display using in-memory map
                 table.refresh();
                 statusLabel.setText("✓ Prerequisites updated.");
                 statusLabel.setStyle("-fx-text-fill: #2E7D32; -fx-font-size: 13;");
@@ -183,17 +186,16 @@ public class EditablePrerequisitesScreen {
             }
         });
 
-        cancelBtn.setOnAction(e -> {
+        cancelBtn.setOnAction(e ->
             panel.getChildren().setAll(
-                bodyLabel("Select a course above to edit its prerequisites."));
-        });
+                bodyLabel("Select a course above to edit its prerequisites.")));
 
         HBox buttonBar = new HBox(10, saveBtn, cancelBtn);
         buttonBar.setAlignment(Pos.CENTER_LEFT);
-
         panel.getChildren().addAll(scrollPane, buttonBar, statusLabel);
     }
 
+    //Helpers ------------
     private Region goldBar() { Region b = new Region(); b.setStyle(UITheme.STYLE_GOLD_BAR); b.setMaxWidth(Double.MAX_VALUE); return b; }
     private Label sectionLabel(String t) { Label l = new Label(t); l.setStyle(UITheme.STYLE_SECTION_LABEL); return l; }
     private Label bodyLabel(String t) { Label l = new Label(t); l.setStyle(UITheme.STYLE_BODY_LABEL); return l; }

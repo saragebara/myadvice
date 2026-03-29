@@ -28,7 +28,8 @@ public class EligibleScreen {
         view.getChildren().add(pageTitle("Your Eligible Courses"));
 
         //fixed: now filters using getRequiredCoursesForMajor() and gets req courses based on program
-        List<Course> eligibleRequired = curriculumService.getEligibleRequired(student);
+        CurriculumService.EligibleBundle bundle = curriculumService.getEligibleBundle(student);
+        List<Course> eligibleRequired  = bundle.eligibleRequired;
         ListView<String> reqList = styledListView(200);
 
         if (eligibleRequired.isEmpty()) {
@@ -56,7 +57,7 @@ public class EligibleScreen {
         reqCard.setPadding(new Insets(UITheme.CARD_PADDING));
 
         //bug fix: avoiding leaks
-        List<Course> eligibleElectives = curriculumService.getEligibleElectives(student);
+        List<Course> eligibleElectives = bundle.eligibleElectives;
         ListView<String> elecList = styledListView(200);
 
         //if no eligible electives

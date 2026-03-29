@@ -3,16 +3,20 @@ package com.sad.myadvice.advising.service;
 import com.sad.myadvice.entity.Course;
 import com.sad.myadvice.entity.Transcript;
 import com.sad.myadvice.entity.User;
+import com.sad.myadvice.repository.CourseProgramRepository;
 import com.sad.myadvice.repository.TranscriptRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
 
 @Service //tells Spring that this is a service class to manage automatically
 public class TranscriptService {
     private final TranscriptRepository transcriptRepository;
+    private final CourseProgramRepository courseProgramRepository;
 
-    public TranscriptService(TranscriptRepository transcriptRepository) {
+    public TranscriptService(TranscriptRepository transcriptRepository, CourseProgramRepository courseProgramRepository) {
         this.transcriptRepository = transcriptRepository;
+        this.courseProgramRepository = courseProgramRepository;
     }
 
     //Get all of a student's transcripts
@@ -57,12 +61,47 @@ public class TranscriptService {
     //Calculate the overall degree completion percentage
     public double getCompletionPercentage(User student, int totalRequiredCourses) {
         //gets all completed courses that are required for the student's major and calculates percentage
-        long completed = transcriptRepository
+        long completedRequiredCount = transcriptRepository
             .findByStudentAndStatus(student, Transcript.Status.COMPLETED)
             .stream()
-            .filter(t -> t.getCourse().isRequired())
+            .filter(t -> isRequiredForMajor(student, t.getCourse()))
             .count();
         //if total required courses is 0 then have a ternary just in case. otherwise division by 0 is an issue
-        return totalRequiredCourses == 0 ? 0 : ((double) completed / totalRequiredCourses)*100;
+        return totalRequiredCourses == 0 ? 0 : ((double) completedRequiredCount / totalRequiredCourses) * 100;
+    }
+
+    private boolean isRequiredForMajor(User student, Course course) {
+        if (student == null || student.getMajor() == null) {
+            return course.isRequired();
+        }
+        return courseProgramRepository.findByMajor(student.getMajor()).stream()
+            .map(cp -> cp.getCourse())
+            .anyMatch(requiredCourse -> requiredCourse.getId() != null && requiredCourse.getId().equals(course.getId()));
+    }
+
+    //transcript snapshot to avoid long DB queries and just load it once
+    public TranscriptSnapshot getSnapshot(User student) {
+        List<Transcript> all = transcriptRepository.findByStudent(student);
+        Set<Long> completed = new java.util.HashSet<>();
+        Set<Long> inProgress = new java.util.HashSet<>();
+        for (Transcript t : all) {
+            if (t.getCourse() == null) continue;
+            if (t.getStatus() == Transcript.Status.COMPLETED)  completed.add(t.getCourse().getId());
+            if (t.getStatus() == Transcript.Status.IN_PROGRESS) inProgress.add(t.getCourse().getId());
+        }
+        return new TranscriptSnapshot(completed, inProgress);
+    }
+
+    //lightweight transcript snapshot object 
+    public static class TranscriptSnapshot {
+        public final Set<Long> completedIds;
+        public final Set<Long> inProgressIds;
+        public TranscriptSnapshot(Set<Long> completedIds, Set<Long> inProgressIds) {
+            this.completedIds  = completedIds;
+            this.inProgressIds = inProgressIds;
+        }
+        public boolean isCompleted(Course c){ return c != null && completedIds.contains(c.getId()); }
+        public boolean isInProgress(Course c){ return c != null && inProgressIds.contains(c.getId()); }
+        public boolean isCompletedOrInProgress(Course c) {  return isCompleted(c) || isInProgress(c);}
     }
 }

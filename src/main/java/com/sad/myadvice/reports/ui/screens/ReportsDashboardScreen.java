@@ -76,7 +76,13 @@ public class ReportsDashboardScreen {
         studentsButton.setOnAction(e -> controller.showStudentsReport());
         facultyButton.setOnAction(e -> controller.showFacultyReport());
         analyticsButton.setOnAction(e -> controller.showAppointmentAnalytics());
-        backButton.setOnAction(e -> controller.showProgress());
+        backButton.setOnAction(e -> {
+            switch (student.getRole()) { //switching screen based on user role
+                case STUDENT -> controller.showProgress();
+                case FACULTY -> controller.showAppointmentRequests();
+                case STAFF   -> controller.showStaffAppointments();
+            }
+        });
 
         // Add everything to main layout
         view.getChildren().addAll(titleLabel, cardsPanel, buttonPanel);

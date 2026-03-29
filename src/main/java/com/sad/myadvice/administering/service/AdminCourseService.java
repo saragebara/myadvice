@@ -93,6 +93,11 @@ public class AdminCourseService {
     }
 
     public void removePrerequisite(Long prereqRowId) {
-        prerequisiteRepository.deleteById(prereqRowId);
+            prerequisiteRepository.deleteById(prereqRowId);
+        }
+
+        public List<Prerequisite> getAllPrerequisites() {
+        return prerequisiteRepository.findAll();
     }
+
 }

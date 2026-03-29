@@ -138,11 +138,10 @@ public class FacultyStudentProgressScreen {
     private void populateProgressPanel(VBox panel, User student, User faculty) {
         panel.getChildren().clear();
         //basic info - 
-        List<Course> required = curriculumService.getRequiredCoursesForMajor(student);
-        List<Course> completed = transcriptService.getCompletedCourses(student);
-        List<Course> inProgress = transcriptService.getInProgressCourses(student);
-        List<Course> remaining = curriculumService.getRemainingRequiredCourses(student);
-        double pct = transcriptService.getCompletionPercentage(student, required.size());
+        //now uses 2 queries only
+        CurriculumService.ProgressBundle bundle = curriculumService.getProgressBundle(student);
+        double pct = bundle.completionPct;
+        List<Course> remaining = bundle.remaining;
         //student's name
         Label nameLabel = boldLabel(student.getName()
             + "  |  ID: " + student.getStudentId()
@@ -156,9 +155,9 @@ public class FacultyStudentProgressScreen {
         pctLabel.setStyle("-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: " + UITheme.UW_BLUE + ";");
         //stats row with completed and remaining courses
         Label statsLabel = bodyLabel(
-            "Completed: " + completed.size()
-            + "   |   In Progress: " + inProgress.size()
-            + "   |   Remaining Required: " + remaining.size()
+            "Completed: " + bundle.completedCount
+            + "   |   In Progress: " + bundle.inProgressCount
+            + "   |   Remaining Required: " + bundle.remaining.size()
         );
 
         //transcript table

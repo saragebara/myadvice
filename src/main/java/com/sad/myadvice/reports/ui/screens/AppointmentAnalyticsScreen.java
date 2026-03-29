@@ -86,17 +86,52 @@ public class AppointmentAnalyticsScreen {
         HBox buttonBar = new HBox(18, refreshButton, backButton);
         buttonBar.setPadding(new Insets(10, 0, 0, 0));
 
-		//working refresh logic
+		//UPDATED refresh logic
         refreshButton.setOnAction(e -> {
-			view.getChildren().clear();
-			view.getChildren().addAll(
-				titleLabel,
-				reportsService.getTopStudentsByAppointments(3).isEmpty()
-					? studentCard : studentCard,
-				facultyCard,
-				buttonBar
-			);
-		});
+            List<Map.Entry<User, Integer>> freshStudents =
+                reportsService.getTopStudentsByAppointments(3);
+                //loading fresh students
+            String[][] freshStudentData = new String[freshStudents.size()][4];
+            for (int i = 0; i < freshStudents.size(); i++) {
+                User s = freshStudents.get(i).getKey();
+                freshStudentData[i] = new String[]{
+                    String.valueOf(i + 1),
+                    s.getStudentId() != null ? s.getStudentId() : "N/A",
+                    s.getName(),
+                    String.valueOf(freshStudents.get(i).getValue())
+                };
+            }
+
+            List<Map.Entry<User, Integer>> freshFaculty =
+                reportsService.getTopFacultyByAppointments(3);
+                //loading fresh data
+            String[][] freshFacultyData = new String[freshFaculty.size()][4];
+            for (int i = 0; i < freshFaculty.size(); i++) {
+                User f = freshFaculty.get(i).getKey();
+                freshFacultyData[i] = new String[]{
+                    String.valueOf(i + 1),
+                    f.getStudentId() != null ? f.getStudentId() : "N/A",
+                    f.getName(),
+                    String.valueOf(freshFaculty.get(i).getValue())
+                };
+            }
+            //refreshing each card manually since last code used stale references
+            VBox freshStudentCard = createAnalyticsCard(
+                "Students With the Most Appointments",
+                new String[]{"Rank", "Student ID", "Name", "Total Appointments"},
+                freshStudentData.length > 0
+                    ? freshStudentData : new String[][]{{"—", "—", "No data yet", "0"}}
+            );
+            VBox freshFacultyCard = createAnalyticsCard(
+                "Faculty With the Most Appointments",
+                new String[]{"Rank", "Faculty ID", "Name", "Total Appointments"},
+                freshFacultyData.length > 0
+                    ? freshFacultyData : new String[][]{{"—", "—", "No data yet", "0"}}
+            );
+
+            view.getChildren().clear();
+            view.getChildren().addAll(titleLabel, freshStudentCard, freshFacultyCard, buttonBar);
+        });
 		
         // Add everything to the main layout
         view.getChildren().addAll(titleLabel, studentCard, facultyCard, buttonBar);
