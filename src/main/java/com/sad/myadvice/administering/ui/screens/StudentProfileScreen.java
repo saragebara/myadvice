@@ -15,58 +15,54 @@ import java.util.List;
 
 @Component
 public class StudentProfileScreen {
-
+    //repository
     private final UserRepository userRepository;
     private final TranscriptRepository transcriptRepository;
-
     public StudentProfileScreen(UserRepository userRepository,
                                  TranscriptRepository transcriptRepository) {
         this.userRepository = userRepository;
         this.transcriptRepository = transcriptRepository;
     }
 
+    //main pane for user profile info + transcript
     public VBox build(User student) {
         VBox view = new VBox(UITheme.SPACING);
         view.setStyle(UITheme.STYLE_CONTENT_AREA);
         view.getChildren().add(pageTitle("My Profile"));
 
-        // ── Profile card ──────────────────────────────────────────────────────
+        //profile card
+        //name, email, student ID - only name is editable
         TextField nameField = styledField(student.getName());
         TextField emailField = styledField(student.getEmail());
         emailField.setEditable(false);
-        emailField.setStyle(UITheme.STYLE_TEXT_FIELD +
-            " -fx-background-color: #F0F0F0;");
-
-        TextField studentIdField = styledField(
-            student.getStudentId() != null ? student.getStudentId() : "N/A");
+        emailField.setStyle(UITheme.STYLE_TEXT_FIELD + " -fx-background-color: #F0F0F0;");
+        TextField studentIdField = styledField(student.getStudentId() != null ? student.getStudentId() : "N/A");
         studentIdField.setEditable(false);
-        studentIdField.setStyle(UITheme.STYLE_TEXT_FIELD +
-            " -fx-background-color: #F0F0F0;");
-
+        studentIdField.setStyle(UITheme.STYLE_TEXT_FIELD + " -fx-background-color: #F0F0F0;");
+        //user's major
         Label majorLabel = bodyLabel(
-            student.getMajor() != null
-                ? student.getMajor().getFullName()
-                : "No major selected"
-        );
+            student.getMajor() != null ? student.getMajor().getFullName() : "No major selected");
 
+        //change password field
         PasswordField newPasswordField = new PasswordField();
         newPasswordField.setPromptText("Enter new password (leave blank to keep current)");
         newPasswordField.setStyle(UITheme.STYLE_TEXT_FIELD);
         newPasswordField.setMaxWidth(Double.MAX_VALUE);
-
+        //status for error msgs
         Label profileStatus = new Label("");
         profileStatus.setStyle(UITheme.STYLE_BODY_LABEL);
 
+        //save changes to profile 
         Button saveProfileBtn = primaryButton("Save Changes");
         saveProfileBtn.setOnAction(e -> {
             String newName = nameField.getText().trim();
-            if (newName.isEmpty()) {
+            if (newName.isEmpty()) { //if field is empty don't let the user save
                 profileStatus.setText("⚠ Name cannot be empty.");
                 profileStatus.setStyle("-fx-text-fill: #C62828; -fx-font-size: 13;");
                 return;
             }
             student.setName(newName);
-            if (!newPasswordField.getText().isEmpty()) {
+            if (!newPasswordField.getText().isEmpty()) { //if password field isn't empty, change password
                 student.setPassword(newPasswordField.getText());
             }
             userRepository.save(student);
@@ -75,6 +71,7 @@ public class StudentProfileScreen {
             newPasswordField.clear();
         });
 
+        //add all components to card
         VBox profileCard = new VBox(10,
             goldBar(),
             sectionLabel("Personal Information"),
@@ -85,18 +82,20 @@ public class StudentProfileScreen {
             buildFieldGroup("New Password", newPasswordField),
             saveProfileBtn,
             profileStatus
-        );
+        );//styling
         profileCard.setStyle(UITheme.STYLE_CARD);
         profileCard.setPadding(new Insets(UITheme.CARD_PADDING));
 
-        // ── Transcript card ───────────────────────────────────────────────────
+        //transcript card
+        //getting all transcripts from DB
         List<Transcript> transcripts = transcriptRepository.findByStudent(student);
-
+        //creating a table view to see transcript details
         TableView<Transcript> transcriptTable = new TableView<>();
         transcriptTable.setColumnResizePolicy(
             TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         transcriptTable.setPrefHeight(280);
-
+        
+        //separate columns for table: course code, name, term, grade, status----------
         TableColumn<Transcript, String> codeCol = new TableColumn<>("Course Code");
         codeCol.setCellValueFactory(cd ->
             new javafx.beans.property.SimpleStringProperty(
@@ -123,22 +122,17 @@ public class StudentProfileScreen {
         statusCol.setCellValueFactory(cd ->
             new javafx.beans.property.SimpleStringProperty(
                 cd.getValue().getStatus().toString()));
-
-        transcriptTable.getColumns().addAll(
-            codeCol, nameCol, termCol, gradeCol, statusCol);
+        //----------------------------------------------------------------------------
+        
+        transcriptTable.getColumns().addAll(codeCol, nameCol, termCol, gradeCol, statusCol);
         transcriptTable.getItems().addAll(transcripts);
 
-        // Summary stats
-        long completed = transcripts.stream()
-            .filter(t -> t.getStatus() == Transcript.Status.COMPLETED).count();
-        long inProgress = transcripts.stream()
-            .filter(t -> t.getStatus() == Transcript.Status.IN_PROGRESS).count();
-        double avgGrade = transcripts.stream()
-            .filter(t -> t.getGrade() != null)
-            .mapToDouble(Transcript::getGrade)
-            .average()
-            .orElse(0.0);
+        //summary statistics (completed, in progress, average grade)
+        long completed = transcripts.stream().filter(t -> t.getStatus() == Transcript.Status.COMPLETED).count();
+        long inProgress = transcripts.stream().filter(t -> t.getStatus() == Transcript.Status.IN_PROGRESS).count();
+        double avgGrade = transcripts.stream().filter(t -> t.getGrade() != null).mapToDouble(Transcript::getGrade).average().orElse(0.0);
 
+        //horizontal box for statistics 
         HBox stats = new HBox(20,
             statBox("Completed",   String.valueOf(completed)),
             statBox("In Progress", String.valueOf(inProgress)),
@@ -146,20 +140,22 @@ public class StudentProfileScreen {
         );
         stats.setAlignment(Pos.CENTER_LEFT);
 
+        //adding all components to transcript card
         VBox transcriptCard = new VBox(10,
             goldBar(),
             sectionLabel("My Transcript"),
             stats,
             transcriptTable
-        );
+        );//styling
         transcriptCard.setStyle(UITheme.STYLE_CARD);
         transcriptCard.setPadding(new Insets(UITheme.CARD_PADDING));
 
+        //adding both cards to the main view
         view.getChildren().addAll(profileCard, transcriptCard);
         return view;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    //helpers -------------------------------------------------------------
 
     private VBox statBox(String label, String value) {
         Label valueLabel = new Label(value);

@@ -34,6 +34,7 @@ public class MainController implements Initializable {
     private final PlansScreen plansScreen;
     private final BookingScreen bookingScreen;
     private final SchedullingScreen schedullingScreen;
+    private final StudentProfileScreen studentProfileScreen;
 
     // FACULTY SCREENS ----------------------------------------------------------
     private final FacultyAppointmentRequestsScreen facultyRequestsScreen;
@@ -75,7 +76,8 @@ public class MainController implements Initializable {
             AppointmentAnalyticsScreen appointmentAnalyticsScreen,
             EditableTimetableScreen editableTimetableScreen,
             EditablePrerequisitesScreen editablePrerequisitesScreen,
-            EditableResearchAreasScreen editableResearchAreasScreen) {
+            EditableResearchAreasScreen editableResearchAreasScreen,
+            StudentProfileScreen studentProfileScreen) {
 
         this.progressScreen = progressScreen;
         this.eligibleScreen = eligibleScreen;
@@ -96,6 +98,7 @@ public class MainController implements Initializable {
         this.editableTimetableScreen = editableTimetableScreen;
         this.editablePrerequisitesScreen = editablePrerequisitesScreen;
         this.editableResearchAreasScreen = editableResearchAreasScreen;
+        this.studentProfileScreen = studentProfileScreen;
     }
 
     @Override
@@ -139,7 +142,8 @@ public class MainController implements Initializable {
             navButton("📋  My Plans", this::showPlans),
             navButton("📅  Scheduling", this::showSchedulling),
             navButton("⌚  Book Appointment", this::showBooking),
-            navButton("📊  Reports", this::showReportsDashboard)
+            navButton("📊  Reports", this::showReportsDashboard),
+            navButton("👤 Profile", this::showStudentProfile)
         );
     }
 
@@ -193,6 +197,10 @@ public class MainController implements Initializable {
         setContent(schedullingScreen.build(currentUser));
     }
 
+    public void showStudentProfile() {
+        setContent(studentProfileScreen.build(currentUser));
+    }
+
     //FACULTY ----------------------------------------------
     public void showAppointmentRequests() {
         setContent(facultyRequestsScreen.build(currentUser));
@@ -229,7 +237,7 @@ public class MainController implements Initializable {
     }
 
     //Shared - REPORTS ----------------------------------------------
-    // TO-DO UPDATE THIS TO BE DIFFERENT VIEWS
+    // TODO UPDATE THIS TO BE DIFFERENT VIEWS
     public void showReportsDashboard() {
         setContent(reportsDashboardScreen.build(currentUser, this));
     }
