@@ -1,9 +1,12 @@
 package com.sad.myadvice.advising.ui.screens;
 
 import com.sad.myadvice.advising.service.CoursePlanService;
+
 import com.sad.myadvice.advising.ui.UITheme;
 import com.sad.myadvice.entity.CoursePlan;
 import com.sad.myadvice.entity.User;
+import com.sad.myadvice.repository.UserRepository;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -20,9 +23,11 @@ import java.util.List;
 @Component
 public class PlansScreen {
     private final CoursePlanService coursePlanService;
+    private final UserRepository userRepository;
 
-    public PlansScreen(CoursePlanService coursePlanService) {
+    public PlansScreen(CoursePlanService coursePlanService, UserRepository userRepository) {
         this.coursePlanService = coursePlanService;
+        this.userRepository = userRepository;
     }
 
     public VBox build(User student) {
@@ -46,7 +51,9 @@ public class PlansScreen {
         //Load plans helper-------------------------------------
         Runnable refreshPlans = () -> {
             plansList.getItems().clear();
-            List<CoursePlan> plans = coursePlanService.getPlansForStudent(student);
+            // Reload student from DB to ensure attached entity
+            User freshStudent = userRepository.findById(student.getId()).orElse(student);
+            List<CoursePlan> plans = coursePlanService.getPlansForStudent(freshStudent);
             if (plans.isEmpty()) {
                 plansList.getItems().add("No plans yet — create one above!");
             } else {

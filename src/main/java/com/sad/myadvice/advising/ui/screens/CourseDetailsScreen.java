@@ -174,7 +174,7 @@ public class CourseDetailsScreen {
             boldLabel(selected.getCode() + "  —  " + selected.getName()),
             bodyLabel("Credits: " + selected.getCredits()),
             bodyLabel("Year Level: " + selected.getYearLevel()),
-            bodyLabel("Required: " + (selected.isRequired() ? "Yes" : "No")),
+            bodyLabel("Required for your major: " + (requiredForMajor ? "Yes" : "No")),
             bodyLabel("Category: " + (selected.getCategory() != null
                     ? selected.getCategory().toString() : "N/A")),
             bodyLabel("Offered: " + termsStr),

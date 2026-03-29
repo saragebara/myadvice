@@ -9,6 +9,7 @@ import com.sad.myadvice.repository.CourseRepository;
 import com.sad.myadvice.repository.PrerequisiteRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CurriculumService {
@@ -25,23 +26,28 @@ public class CurriculumService {
     }
 
     //required courses for specific majors
-    public List<Course> getRequiredCoursesForMajor(User student){
-        if (student.getMajor() == null) {
-            //if student somehow doesn't have a major then fallback 
+    public List<Course> getRequiredCoursesForMajor(User student) {
+        if (student == null || student.getMajor() == null) {
             return courseRepository.findByIsRequired(true);
         }
-        //map courses based on student's major. return list
         return courseProgramRepository.findByMajor(student.getMajor())
-            .stream().map(CourseProgram::getCourse).toList();
+            .stream()
+            .map(CourseProgram::getCourse)
+            .toList();
     }
 
     //get the remaining courses that a student needs for degree reqs
-    public List<Course> getRemainingRequiredCourses(User student){
+    public List<Course> getRemainingRequiredCourses(User student) {
         List<Course> required = getRequiredCoursesForMajor(student);
         List<Course> completed = transcriptService.getCompletedCourses(student);
-        //returning courses in the degree reqs that are NOT yet completed (in transcript)
-        return required.stream().filter(c -> !completed.contains(c)).toList();
+        Set<Long> completedIds = completed.stream()
+            .map(Course::getId)
+            .collect(java.util.stream.Collectors.toSet());
+        return required.stream()
+            .filter(c -> !completedIds.contains(c.getId()))
+            .toList();
     }
+
 
     //get the recommended year to take a course
     public int getRecommendedYear(User student, Course course){
@@ -55,11 +61,12 @@ public class CurriculumService {
 
     //fixed logic -- required by major instead of global required flag implemented for MVP
     public boolean isRequiredForMajor(User student, Course course) {
-        if (student.getMajor() == null) {
-            return course.isRequired(); //fallback to global flag in case of error
+        if (student == null || student.getMajor() == null) {
+            return course.isRequired();
         }
         return courseProgramRepository.findByMajor(student.getMajor())
-            .stream().anyMatch(cp -> cp.getCourse().equals(course));
+            .stream()
+            .anyMatch(cp -> cp.getCourse().getId().equals(course.getId())); // compare by ID not object
     }
 
     //Check if a student is eligible for taking a specific course (has prereqs)
@@ -97,12 +104,16 @@ public class CurriculumService {
     public List<Course> getEligibleCourses(User student) {
         List<Course> completed = transcriptService.getCompletedCourses(student);
         List<Course> inProgress = transcriptService.getInProgressCourses(student);
+        Set<Long> completedIds = completed.stream().map(Course::getId)
+            .collect(java.util.stream.Collectors.toSet());
+        Set<Long> inProgressIds = inProgress.stream().map(Course::getId)
+            .collect(java.util.stream.Collectors.toSet());
 
-        return courseRepository.findAll().stream() //to stream to filter
-            .filter(c -> !completed.contains(c)) //course hasn't already been completed
-            .filter(c -> !inProgress.contains(c)) //student isn't currently taking it
-            .filter(c -> isEligible(student, c)) //all prerequisites are met
-            .toList(); //back to list
+        return courseRepository.findAll().stream()
+            .filter(c -> !completedIds.contains(c.getId()))
+            .filter(c -> !inProgressIds.contains(c.getId()))
+            .filter(c -> isEligible(student, c))
+            .toList();
     }
 
     //Get all the required courses for specific major that a student hasn't taken yet that they are ABLE to take
@@ -110,19 +121,25 @@ public class CurriculumService {
         List<Course> required = getRequiredCoursesForMajor(student);
         List<Course> completed = transcriptService.getCompletedCourses(student);
         List<Course> inProgress = transcriptService.getInProgressCourses(student);
+        Set<Long> completedIds = completed.stream().map(Course::getId)
+            .collect(java.util.stream.Collectors.toSet());
+        Set<Long> inProgressIds = inProgress.stream().map(Course::getId)
+            .collect(java.util.stream.Collectors.toSet());
 
         return required.stream()
-            .filter(c -> !completed.contains(c)) //not completed
-            .filter(c -> !inProgress.contains(c)) //not currently in progress
-            .filter(c -> isEligible(student, c)) //is eligible to take
+            .filter(c -> !completedIds.contains(c.getId()))
+            .filter(c -> !inProgressIds.contains(c.getId()))
+            .filter(c -> isEligible(student, c))
             .toList();
     }
 
     //checks all eligible electives a user can take 
     //bug fix: use isrRequiredForMajor instead of getEligibleCourses to filter properly
     public List<Course> getEligibleElectives(User student) {
+        List<Course> required = getRequiredCoursesForMajor(student);
         return getEligibleCourses(student).stream()
-            .filter(c -> !isRequiredForMajor(student, c)).toList();
+            .filter(c -> !required.contains(c))  // strictly exclude ALL required courses
+            .toList();
     }
 }
 

@@ -27,7 +27,7 @@ public class CoursePlan {
     private boolean isApproved; //whether or not its been approved by a faculty member
 
     //one to many relationship with plan items - one plan can have many items
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL) //cascade type makes it so that deleting a plan deletes all items too
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, fetch = FetchType.EAGER) //cascade type makes it so that deleting a plan deletes all items too
     private List<CoursePlanItem> items;
 
     //----Getters and setters----
