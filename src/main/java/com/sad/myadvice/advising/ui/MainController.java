@@ -1,5 +1,6 @@
 package com.sad.myadvice.advising.ui;
 
+import com.sad.myadvice.administering.ui.screens.*;
 import com.sad.myadvice.advising.ui.screens.*;
 import com.sad.myadvice.booking.ui.screens.*;
 import com.sad.myadvice.reports.ui.screens.*;
@@ -43,6 +44,9 @@ public class MainController implements Initializable {
 
     // STAFF SCREENS ------------------------------------------------------------
     private final StaffAllAppointmentsScreen staffAppointmentsScreen;
+    private final EditableTimetableScreen editableTimetableScreen;
+    private final EditablePrerequisitesScreen editablePrerequisitesScreen;
+    private final EditableResearchAreasScreen editableResearchAreasScreen;
 
     // SHARED SCREENS -----------------------------------------------------------
     private final ReportsDashboardScreen reportsDashboardScreen;
@@ -68,7 +72,10 @@ public class MainController implements Initializable {
             StudentsReportScreen studentsReportScreen,
             FacultyReportScreen facultyReportScreen,
             SchedullingScreen schedullingScreen,
-            AppointmentAnalyticsScreen appointmentAnalyticsScreen) {
+            AppointmentAnalyticsScreen appointmentAnalyticsScreen,
+            EditableTimetableScreen editableTimetableScreen,
+            EditablePrerequisitesScreen editablePrerequisitesScreen,
+            EditableResearchAreasScreen editableResearchAreasScreen) {
 
         this.progressScreen = progressScreen;
         this.eligibleScreen = eligibleScreen;
@@ -86,6 +93,9 @@ public class MainController implements Initializable {
         this.facultyReportScreen = facultyReportScreen;
         this.appointmentAnalyticsScreen = appointmentAnalyticsScreen;
         this.schedullingScreen = schedullingScreen;
+        this.editableTimetableScreen = editableTimetableScreen;
+        this.editablePrerequisitesScreen = editablePrerequisitesScreen;
+        this.editableResearchAreasScreen = editableResearchAreasScreen;
     }
 
     @Override
@@ -149,7 +159,10 @@ public class MainController implements Initializable {
         sidebarButtons.getChildren().clear();
         sidebarButtons.getChildren().addAll(
             navButton("📆  All Appointments", this::showStaffAppointments),
-            navButton("📊  Reports", this::showReportsDashboard)
+            navButton("📊  Reports", this::showReportsDashboard),
+            navButton("🗓️  Edit Timetable",       this::showEditTimetable),
+            navButton("📚  Edit Prerequisites",   this::showEditPrerequisites),
+            navButton("🔬  Research Areas",       this::showEditResearchAreas)
         );
     }
 
@@ -203,6 +216,16 @@ public class MainController implements Initializable {
     //STAFF ------------------------------------------------
     public void showStaffAppointments() {
         setContent(staffAppointmentsScreen.build(currentUser));
+    }
+
+    public void showEditTimetable()     { 
+        setContent(editableTimetableScreen.build()); 
+    }
+    public void showEditPrerequisites() { 
+        setContent(editablePrerequisitesScreen.build()); 
+    }
+    public void showEditResearchAreas() { 
+        setContent(editableResearchAreasScreen.build()); 
     }
 
     //Shared - REPORTS ----------------------------------------------

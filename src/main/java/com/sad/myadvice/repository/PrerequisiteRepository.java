@@ -8,4 +8,5 @@ import java.util.List;
 public interface PrerequisiteRepository extends JpaRepository<Prerequisite, Long> {
     List<Prerequisite> findByCourse(Course course);
     List<Prerequisite> findByCourseAndType(Course course, Prerequisite.Type type);
+    List<Prerequisite> findByRequiredCourse(Course requiredCourse);
 }
