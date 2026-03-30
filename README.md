@@ -8,6 +8,7 @@ An undergraduate CS advising system
 - MariaDB 12.2.2
 - Hibernate/Spring Data JPA
 - Maven
+- JavaFX
 
 ## Project Structure
 ```
