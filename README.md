@@ -1,14 +1,17 @@
-# myAdvice
-**COMP2800 Group Project**
-An undergraduate CS advising system
+# 📖 myAdvice
+**COMP2800 Group Project** • An undergraduate CS advising system
+
+## Demo
+https://www.youtube.com/watch?v=OsDVJvcRaCg
 
 ## Tech Stack
-- Java 17+
-- Spring Boot 4.0.3
-- MariaDB 12.2.2
-- Hibernate/Spring Data JPA
-- Maven
-- JavaFX
+- **Java 17**+
+- **Spring Boot** 4.0.3 for backend
+- **JavaFX** for frontend
+- **MariaDB** 12.2.2
+- **Hibernate/Spring Data JPA**
+- **Maven**
+
 
 ## Project Structure
 ```
@@ -52,7 +55,7 @@ To test different screens for student, faculty, and staff, try these accounts:
 Or, create a new account by signing up. 
 
 
-## Setup Guide - LOCAL (GIT CLONE) INSTALLATION
+## Setup Guide - LOCAL (GIT CLONE) Installation
 Before cloning, make sure you have the following prerequisites:
 - **Java 17** or higher (check with `java -version` in terminal)
 - **Git** (check with `git --version`)
