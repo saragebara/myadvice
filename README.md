@@ -51,8 +51,10 @@ Download the .jar file in the Releases of this repository. Then, double click it
 To test different screens for student, faculty, and staff, try these accounts:
 - **Student**: email: student@uwindsor.ca | pw: password
 - **Faculty**: email: faculty@uwindsor.ca | pw: password
-- **Staff**: email: staff@uwindsor.ca | pw: password
-Or, create a new account by signing up. 
+- **Staff**: email: staff@uwindsor.ca | pw: password \
+Or, create a new account by signing up. \ 
+
+**Note: We ran out of Azure credits (🥲) so the backend will not work using this method.**
 
 
 ## Setup Guide - LOCAL (GIT CLONE) Installation
